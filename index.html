@@ -46,7 +46,7 @@ img.abs{display:block;}
 .titre{font-size:calc(var(--u)*80);line-height:1;letter-spacing:-0.017em;white-space:nowrap;}
 .titre-en{font-size:calc(var(--u)*15.5);letter-spacing:.205em;white-space:nowrap;opacity:.95;}
 .byline{font-size:calc(var(--u)*12);line-height:calc(var(--u)*14.4);letter-spacing:-0.012em;white-space:nowrap;}
-.byline .lien-img.mezz-nom{font-size:calc(var(--u)*15);letter-spacing:.002em;border-bottom:none;}
+.byline .lien-img.mezz-nom{font-size:calc(var(--u)*18.5);letter-spacing:.004em;border-bottom:none;}
 .byline .lien-img.mezz-nom::after{content:none;}
 .noms{font-size:calc(var(--u)*24);line-height:calc(var(--u)*36);letter-spacing:-0.022em;white-space:nowrap;}
 .entete{position:absolute;left:calc(var(--u)*74.4);width:calc(var(--u)*446);height:calc(var(--u)*33.6);
@@ -383,10 +383,18 @@ img.abs{display:block;}
   }
   function assure(src,seed){
     var pp=piste(src);
-    if(pp.ok===null && !pp.audio){
+    if(!pp.audio){
       var a=new Audio(src);a.loop=true;a.preload='auto';a.volume=0;
-      a.addEventListener('canplaythrough',function(){ if(pp.ok===null) pp.ok=true; });
-      a.addEventListener('error',function(){ pp.ok=false; if(!pp.gain&&ctx)bruit(pp,seed||0); });
+      a.addEventListener('canplaythrough',function(){ pp.ok=true; });
+      a.addEventListener('playing',function(){ pp.ok=true; });
+      // une erreur transitoire ne doit JAMAIS couper définitivement la musique :
+      // on retente le chargement, et on ne tombe sur le bruit de secours qu'après
+      // plusieurs échecs réels et persistants.
+      a.addEventListener('error',function(){
+        pp.err=(pp.err||0)+1;
+        if(pp.err>=4){ pp.ok=false; if(!pp.gain&&ctx)bruit(pp,seed||0); }
+        else { try{ a.load(); }catch(e){} }
+      });
       pp.audio=a;
     }
     return pp;
@@ -399,7 +407,15 @@ img.abs{display:block;}
         var v=pp.audio.volume,dv=pp.cible-v;
         if(Math.abs(dv)>0.012){pp.audio.volume=Math.max(0,Math.min(1,v+dv*0.07));fini=false;}
         else pp.audio.volume=pp.cible;
-        if(pp.cible>0 && pp.audio.paused && debloque) pp.audio.play().catch(function(){pp.ok=false;if(!pp.gain&&ctx)bruit(pp,seed||0);});
+        if(pp.cible>0 && pp.audio.paused && debloque){
+          var pr=pp.audio.play();
+          if(pr&&pr.catch) pr.catch(function(){
+            // échec de lecture (souvent : pas encore débloqué par un geste) → on retente,
+            // on ne bascule PAS sur le bruit pour une simple permission différée.
+            pp.playErr=(pp.playErr||0)+1;
+            fini=false;
+          });
+        }
         if(pp.cible===0 && pp.audio.volume===0 && !pp.audio.paused) pp.audio.pause();
       }
       if(pp.gain && ctx){
@@ -460,7 +476,8 @@ img.abs{display:block;}
     if(ctx && ctx.state==='suspended') ctx.resume();
     pisteActuelle=''; courante=-1;
     /* iOS/Android : un play() doit avoir lieu DANS le geste. On lance tout de suite
-       la 1re piste sonore (Really the Blues) de façon synchrone. */
+       la 1re piste sonore (Really the Blues) de façon synchrone, et on amorce sa
+       montée de volume immédiatement pour qu'on l'entende dès le premier mouvement. */
     try{
       var first=-1;
       for(var k=0;k<pages.length;k++){ if(pages[k].getAttribute('data-son')){ first=k; break; } }
@@ -468,7 +485,11 @@ img.abs{display:block;}
         var raw=pages[first].getAttribute('data-son');
         var src=SRC[raw]||raw;
         var pp=assure(src, first);
-        if(pp.audio){ pp.audio.volume=0; var pr=pp.audio.play(); if(pr&&pr.catch) pr.catch(function(){}); }
+        if(pp.audio){
+          pp.audio.volume=0;
+          var pr=pp.audio.play(); if(pr&&pr.catch) pr.catch(function(){});
+          pp.cible = actif?VOL:0; fondu(pp, first);   // amorce la montée tout de suite
+        }
       }
     }catch(e){}
     majAudio();                                  /* synchrone : enclenche la bonne piste + crédit */
@@ -539,9 +560,9 @@ img.abs{display:block;}
     }
     // monter le bon contenu si nécessaire
     if(P._id!==id){ monter(P,id); P._id=id; }
-    // phase apparition (0→0.18) puis déroulé (0.18→1)
-    var ap=Math.min(1, prog/0.18);
-    var dr=Math.max(0, (prog-0.18)/0.82);
+    // phase apparition (0→0.30), pose (0.30→0.42), puis déroulé (0.42→1)
+    var ap=Math.min(1, prog/0.30);
+    var dr=Math.min(1, Math.max(0, (prog-0.42)/0.58));
     P.el.classList.add('actif');
     P.el.style.opacity=String(ap);
     var dx=(1-ap)* (P.el.id==='panneau-d'? 22 : -22);
@@ -572,10 +593,12 @@ img.abs{display:block;}
       // fenêtre active : du moment où la page est bien visible (haut ~ 45% de H)
       // jusqu'à ce qu'elle commence à sortir par le haut (haut ~ -55% de sa hauteur).
       var top=r.top, h=r.height;
-      var p=( (H*0.42) - top ) / (h*0.80);
+      // image découverte longtemps, puis apparition tardive et déroulé posé :
+      // fenêtre étirée, entrée décalée vers le bas (page bien installée au centre).
+      var p=( (H*0.30) - top ) / (h*0.92);
       // au-delà de la sortie, on coupe net (évite qu'une page passée garde p=1)
-      if(top < -h*0.62) p=0;
-      if(top > H*0.55) p=0;          // pas encore entrée
+      if(top < -h*0.66) p=0;
+      if(top > H*0.46) p=0;          // pas encore entrée : image seule
       p=Math.max(0,Math.min(1,p));
       if(p>0){
         if(info.g){ if(p>progG){progG=p;actiG=info.g;} }
@@ -637,13 +660,15 @@ img.abs{display:block;}
       var info=infosPage[i]; if(!info) continue;
       var r=pages[i].getBoundingClientRect();
       var top=r.top, h=r.height;
-      /* Fenêtre TARDIVE : l'image reste seule longtemps.
-         Le texte ne commence à monter que lorsque la page est déjà bien installée
-         au centre (haut de page passé sous ~22% de H), et finit de monter quand
-         elle ressort par le haut. → on voit l'essentiel de l'image avant le texte. */
-      var p=( (H*0.18) - top ) / (h*0.62);
-      if(top < -h*0.66) p=0;
-      if(top > H*0.30) p=0;          // pas encore assez entrée : image seule
+      /* Fenêtre TRÈS TARDIVE : l'image reste seule longtemps.
+         Le texte ne commence à monter que lorsque la page est vraiment installée
+         au centre (haut de page passé sous ~8% de H), et la fenêtre de progression
+         est ÉTIRÉE (h*0.92) pour que tout se joue lentement : montée pesante du
+         sheet puis déroulé posé. → on voit l'essentiel de l'image avant le texte,
+         et le texte ne file pas. */
+      var p=( (H*0.08) - top ) / (h*0.92);
+      if(top < -h*0.70) p=0;
+      if(top > H*0.20) p=0;          // pas encore assez entrée : image seule, plein cadre
       p=Math.max(0,Math.min(1,p));
       if(p>prog){ prog=p; acti=info; actiIdx=i; }
     }
@@ -668,15 +693,19 @@ img.abs{display:block;}
       PG._mkey=c.key;
     }
     PG.el.classList.add('actif');
-    /* Apparition ÉTALÉE et PESANTE : le sheet met plus de chemin à monter (0→0.38),
-       avec un easing qui démarre lentement (poids) puis s'installe ; le déroulé du
-       texte ne commence qu'ensuite (0.38→1). Résultat : image seule longtemps,
-       puis une entrée lente qui recouvre progressivement l'image, sans à-coup. */
-    var apRaw=Math.min(1, prog/0.38);
+    /* Trois temps, étalés pour donner du poids et laisser lire :
+       — phase MONTÉE (0 → 0.46) : le sheet monte lentement (easing pesant),
+         sa transparence est tenue longtemps (l'image reste lisible dessous).
+       — phase POSE  (0.46 → 0.58) : le sheet est arrivé, opaque, IMMOBILE.
+         Rien ne défile : on a le temps de lire le haut du texte.
+       — phase DÉROULÉ (0.58 → 1) : le texte se déroule, lentement, sur une grande
+         course de scroll, pour qu'aucun paragraphe ne file avant d'être lu. */
+    var apRaw=Math.min(1, prog/0.46);
     var ap=easeInOutPoids(apRaw);
-    var dr=Math.max(0, (prog-0.38)/0.62);
-    // opacité : ne sature pas trop vite — l'image reste lisible sous le sheet montant
-    PG.el.style.opacity=String(0.18+0.82*ap);
+    var dr=Math.max(0, (prog-0.58)/0.42);
+    dr=Math.min(1, dr);
+    // opacité : montée douce, l'image reste perceptible sous le sheet jusqu'assez tard
+    PG.el.style.opacity=String(0.12+0.88*ap);
     PG.el.style.transform='translateY('+((1-ap)*100)+'%)';
     var max=PG.defile.scrollHeight - PG.defile.clientHeight;
     if(max>4){
