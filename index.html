@@ -46,8 +46,8 @@ img.abs{display:block;}
 .titre{font-size:calc(var(--u)*80);line-height:1;letter-spacing:-0.017em;white-space:nowrap;}
 .titre-en{font-size:calc(var(--u)*15.5);letter-spacing:.205em;white-space:nowrap;opacity:.95;}
 .byline{font-size:calc(var(--u)*12);line-height:calc(var(--u)*15.2);letter-spacing:-0.012em;white-space:nowrap;text-align:right;}
-.byline .lien-img.mezz-nom{display:inline-block;font-size:calc(var(--u)*17);letter-spacing:.004em;
-  border-bottom:1px dashed rgba(239,213,26,.6);line-height:calc(var(--u)*22);}
+.byline .lien-img.mezz-nom{display:inline-block;font-size:calc(var(--u)*22);letter-spacing:.004em;
+  border-bottom:1px dashed rgba(239,213,26,.6);line-height:calc(var(--u)*27);}
 .byline .lien-img.mezz-nom::after{content:"\2197";font-size:.62em;vertical-align:.45em;margin-left:.12em;opacity:.8;}
 .noms{font-size:calc(var(--u)*24);line-height:calc(var(--u)*36);letter-spacing:-0.022em;white-space:nowrap;}
 .entete{position:absolute;left:calc(var(--u)*74.4);width:calc(var(--u)*446);height:calc(var(--u)*33.6);
@@ -70,13 +70,13 @@ img.abs{display:block;}
 .credit.couv{right:calc(var(--u)*20);bottom:calc(var(--u)*18);}
 
 /* photos de couverture (apparition au démarrage du son) */
-.cv-photo{position:fixed;top:50%;z-index:44;width:min(190px, 14vw);
+.cv-photo{position:fixed;top:50%;z-index:44;width:min(240px, 17vw);
   opacity:0;visibility:hidden;pointer-events:none;
   transition:opacity 1.4s ease, transform 1.4s cubic-bezier(.22,.8,.2,1), visibility 0s linear 1.4s;}
 .cv-photo img{display:block;width:100%;height:auto;border:1px solid rgba(239,213,26,.55);box-shadow:0 10px 30px rgba(0,0,0,.6);}
 .cv-photo .lg{color:var(--jaune);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:9px 0 0;text-align:center;}
-.cv-photo.gauche{left:max(2vw, calc(50vw - var(--pw)/2 - min(190px,14vw) - 26px));transform:translateY(-50%) translateX(-20px);}
-.cv-photo.droite{right:max(2vw, calc(50vw - var(--pw)/2 - min(190px,14vw) - 26px));transform:translateY(-50%) translateX(20px);}
+.cv-photo.gauche{left:max(2vw, calc(50vw - var(--pw)/2 - min(240px,17vw) - 26px));transform:translateY(-50%) translateX(-20px);}
+.cv-photo.droite{right:max(2vw, calc(50vw - var(--pw)/2 - min(240px,17vw) - 26px));transform:translateY(-50%) translateX(20px);}
 .cv-photo.montre{opacity:1;visibility:visible;transition:opacity 1.4s ease, transform 1.4s cubic-bezier(.22,.8,.2,1), visibility 0s;}
 .cv-photo.gauche.montre,.cv-photo.droite.montre{transform:translateY(-50%) translateX(0);}
 @media (max-width:980px){ .cv-photo{display:none;} }
@@ -191,7 +191,7 @@ img.abs{display:block;}
   #panneau-g h2{font-size:17px;}
   #panneau-g .corps{margin-top:10px;}
   #panneau-g .defile{padding:2px 22px 30px;}
-  #panneau-g .defile p{font-size:13.5px;line-height:1.66;}
+  #panneau-g .defile p{font-size:12.5px;line-height:1.6;}
   /* état FIGÉ (après tap) : texte scrollable à la main, sheet stable */
   #panneau-g.fige{transition:transform .3s cubic-bezier(.22,.8,.2,1);}
   #panneau-g.fige .defile{overflow-y:auto;-webkit-overflow-scrolling:touch;}
@@ -667,7 +667,7 @@ img.abs{display:block;}
     if(cvPhotos.length){
       var r0=pages[0].getBoundingClientRect();
       var avancement = -r0.top / Math.max(1, r0.height);   // 0 en haut, 1 quand p1 entièrement remontée
-      var montrer = debloque && avancement > 0.28 && r0.bottom > H*0.2;
+      var montrer = debloque && avancement > 0.15 && r0.bottom > H*0.42;
       cvPhotos.forEach(function(el){ el.classList.toggle('montre', montrer); });
     }
     majAudio();
@@ -729,8 +729,8 @@ img.abs{display:block;}
          Entre -0.06H et -0.44H : LECTURE (présence 1, déroulé 0→1).
          Entre -0.44H et -0.72H : SORTIE (présence 1→0, symétrique de la montée). */
       var tIn0= 0.30*H2, tIn1=-0.02*H2;     // fenêtre de montée (démarre plus tôt)
-      var tRd1=-0.42*H2;                      // fin de lecture
-      var tOut=-0.70*H2;                      // fin de sortie
+      var tRd1=-1.15*H2;                      // fin de lecture (fenêtre allongée : déroulé lent, un seul geste)
+      var tOut=-1.45*H2;                      // fin de sortie (symétrique, douce)
       var pres=0, dr=0;
       if(top<=tIn0 && top>tIn1){              // MONTÉE
         pres=(tIn0-top)/(tIn0-tIn1); dr=0;
