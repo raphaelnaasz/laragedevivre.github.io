@@ -98,7 +98,7 @@ img.abs{display:block;}
 .panneau .defile.scrollable{overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(239,213,26,.55) transparent;}
 .panneau .defile::-webkit-scrollbar{width:6px}
 .panneau .defile::-webkit-scrollbar-thumb{background:rgba(239,213,26,.5)}
-.panneau .defile p{color:var(--jaune);font-size:12.5px;line-height:1.62;letter-spacing:.01em;margin:0 0 12px;font-weight:900;}
+.panneau .defile p{color:var(--jaune);font-size:15px;line-height:1.58;letter-spacing:.01em;margin:0 0 14px;font-weight:900;}
 .panneau figure{margin:14px 0 16px;}
 .panneau figure img{display:block;width:100%;height:auto;border:1px solid rgba(239,213,26,.35);}
 .panneau figure img[data-cap]{cursor:zoom-in;}
@@ -147,6 +147,36 @@ img.abs{display:block;}
   letter-spacing:.1em;font-size:clamp(8px,2.2vw,10px);}
 
 @media (prefers-reduced-motion: reduce){ .panneau .fleche{animation:none;} }
+
+/* ── séquence d'intro cinématique ── */
+/* éléments UI cachés pendant la séquence */
+body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:none;}
+/* overlay noir pur — fond de scène pendant la composition de l'affiche */
+#seq{position:fixed;inset:0;z-index:88;background:var(--noir);
+  pointer-events:none;opacity:0;visibility:hidden;}
+#seq.actif{opacity:1;visibility:visible;}
+/* éléments page 1 cachés au départ, révélés par la séquence */
+.seq-cache{opacity:0;transition:opacity 2.5s ease;}
+.seq-cache.seq-ok{opacity:1;}
+/* noms sur page 1 : apparition individuelle */
+.nom-seq{display:block;opacity:0;transition:opacity 1.6s ease;}
+.nom-seq.seq-ok{opacity:1;}
+/* lien bio sur les noms */
+.nom-lien{cursor:pointer;border-bottom:1px dashed rgba(239,213,26,.55);}
+.nom-lien::after{content:"\2197";font-size:.58em;vertical-align:.5em;margin-left:.2em;opacity:.75;}
+/* panneau bio (desktop : latéral droit, style panneaux existants) */
+#panneau-bio{
+  right:max(16px, calc((100vw - var(--pw))/2 - var(--pl-w) - 22px));
+  transform:translate(22px,-50%);
+  z-index:46;
+}
+#panneau-bio.actif{transform:translate(0,-50%);}
+@media (max-width:760px){
+  #panneau-bio{left:0;right:0;bottom:0;top:auto;width:100%;
+    height:auto;max-height:75vh;border:0;border-top:1px solid var(--jaune);
+    border-radius:18px 18px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,.8,.2,1);}
+  #panneau-bio.actif{transform:translateY(0);}
+}
 /* ── liens-images dans le texte (mobile + desktop) ── */
 .lien-img{color:var(--jaune);border-bottom:1px dashed rgba(239,213,26,.6);cursor:pointer;
   -webkit-tap-highlight-color:transparent;}
@@ -174,7 +204,7 @@ img.abs{display:block;}
   /* ── SHEET BAS piloté par le scroll (transposition verticale du moteur desktop) ── */
   #panneau-g{
     left:0;right:0;bottom:0;top:auto;width:100%;
-    height:auto;max-height:58vh;
+    height:auto;max-height:65vh;
     border:0;border-top:1px solid var(--jaune);
     border-radius:18px 18px 0 0;
     background:rgba(14,14,14,.97);
@@ -190,7 +220,11 @@ img.abs{display:block;}
     width:38px;height:4px;border-radius:3px;background:rgba(239,213,26,.45);}
   #panneau-g h2{font-size:17px;}
   #panneau-g .corps{margin-top:10px;}
-  #panneau-g .defile{padding:2px 22px 30px;}
+  /* height:auto+overflow:visible : corrige le bug où height:100% ne se résolvait pas
+     dans la chaîne flex (max-height:auto), rendant le contenu invisible. La fenêtre
+     .corps (overflow:hidden) assure le clipping ; le pin GSAP déplace .defile par
+     transform pour révéler le débordement. */
+  #panneau-g .defile{height:auto;overflow:visible;padding:2px 22px 30px;}
   #panneau-g .defile p{font-size:12.5px;line-height:1.6;}
   /* état FIGÉ (après tap) : texte scrollable à la main, sheet stable */
   #panneau-g.fige{transition:transform .3s cubic-bezier(.22,.8,.2,1);}
@@ -204,12 +238,9 @@ img.abs{display:block;}
   /* les pages à panneau : indice visuel discret qu'un texte est disponible */
   .page[data-panneau-page] .entete::after,
   .page .declencheur.premier{}
-  /* GSAP pin : le texte est déplacé par transform (GPU). .corps reste la fenêtre
-     (overflow:hidden, hauteur définie par le flex) ; .defile prend sa hauteur de
-     contenu et déborde, puis on le translate vers le haut. Évite le bug de
-     résolution de height:100% en flex mobile qui rendait scrollTop inopérant. */
-  #panneau-g .defile.gsap-driven{height:auto;min-height:100%;overflow:visible;
-    will-change:transform;transform:translate3d(0,0,0);transition:none;}
+  /* gsap-driven : GPU transform + blocage des transitions CSS (height/overflow déjà
+     corrects sur la base mobile, on ajoute seulement le hint will-change). */
+  #panneau-g .defile.gsap-driven{will-change:transform;transform:translate3d(0,0,0);transition:none;}
 }
 /* ── diptyque panoramique pages 8-9 : côte à côte sur desktop ── */
 .diptique-pano{display:flex;flex-direction:row;width:100%;gap:0;align-items:stretch;}
@@ -240,26 +271,32 @@ img.abs{display:block;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <body>
 
-<button id="son" data-on="1" aria-pressed="true">SON&nbsp;ON</button>
+<button id="son" data-on="1" aria-pressed="true">SOUND&nbsp;ON</button>
 <div id="credit-audio"><span class="slot"></span></div>
 
 <div id="intro" role="dialog" aria-label="Entrée">
-  <button id="intro-btn" class="intro-btn">Écouter&nbsp;&amp;&nbsp;entrer</button>
+  <button id="intro-btn" class="intro-btn">Entrer&nbsp;&amp;&nbsp;écouter</button>
   <div class="intro-sous">Ce dossier se lit avec le son.<br>Activez le son de votre appareil,<br>puis entrez.</div>
   <div class="intro-pied">défilez pour parcourir</div>
 </div>
 
+<!-- séquence cinématique (après clic intro, avant défilement) -->
+<div id="seq" role="presentation" aria-hidden="true"></div>
+
 <main id="flux">
 <section class="page" aria-label="Page 1" data-folio="1" data-son="EMB:RTB" data-piste="Really the Blues — Mezz Mezzrow &amp; Sidney Bechet, 1938">
-  <picture><source srcset="assets/images/couverture-fond.webp" type="image/webp"><img class="fond" src="assets/images/couverture-fond.jpg" alt=""></picture>
-  <div class="cadre-couv"></div>
-  <div class="abs titre" style="left:calc(var(--u)*63.8);top:calc(var(--u)*66.8)">La Rage de</div>
-  <div class="abs titre" style="left:calc(var(--u)*63.8);top:calc(var(--u)*184.8)">Vivre</div>
-  <div class="abs titre-en" style="left:calc(var(--u)*63.8);top:calc(var(--u)*289)">Really the Blues</div>
-  <div class="abs byline" style="right:calc(var(--u)*30);left:auto;top:calc(var(--u)*452)">D’après le roman de<br><span class="lien-img mezz-nom" data-img-ref="img-mezz-cv" data-cap="Mezz Mezzrow">Mezz Mezzrow</span><br>et Bernard Wolfe</div>
-  <div class="abs noms" style="left:calc(var(--u)*78.5);top:calc(var(--u)*585.4)">Raphaël Naasz<br>Margaux Eskenazi<br>Julia Baudet</div>
-  <div class="cv-photo gauche"><picture><source srcset="assets/images/img-mezz-cv.webp" type="image/webp"><img id="img-mezz-cv" data-cap="Mezz Mezzrow" src="assets/images/img-mezz-cv.jpg" alt="Mezz Mezzrow"></picture><div class="lg">Mezz Mezzrow</div></div>
-  <div class="cv-photo droite"><picture><source srcset="assets/images/img-bechet-cv.webp" type="image/webp"><img id="img-bechet-cv" data-cap="Sidney Bechet" src="assets/images/img-bechet-cv.jpg" alt="Sidney Bechet"></picture><div class="lg">Sidney Bechet</div></div>
+  <picture><source srcset="assets/images/couverture-fond.webp" type="image/webp"><img class="fond seq-cache" src="assets/images/couverture-fond.jpg" alt=""></picture>
+  <div class="cadre-couv seq-cache"></div>
+  <div class="abs titre seq-cache" style="left:calc(var(--u)*63.8);top:calc(var(--u)*66.8)">La Rage de</div>
+  <div class="abs titre seq-cache" style="left:calc(var(--u)*63.8);top:calc(var(--u)*184.8)">Vivre</div>
+  <div class="abs titre-en seq-cache" style="left:calc(var(--u)*63.8);top:calc(var(--u)*289)">Really the Blues</div>
+  <div class="abs byline" style="right:calc(var(--u)*30);left:auto;top:calc(var(--u)*452)"><span class="seq-cache">D’après le roman de</span><br><span class="lien-img mezz-nom seq-cache" data-img-ref="img-mezz-cv" data-cap="Mezz Mezzrow">Mezz Mezzrow</span><br><span class="seq-cache">et Bernard Wolfe</span></div>
+  <div class="abs noms" style="left:calc(var(--u)*78.5);top:calc(var(--u)*585.4)">
+    <span class="nom-seq nom-lien" data-bio="src-raph">Raphaël Naasz</span>
+    <span class="nom-seq nom-lien" data-bio="src-margaux">Margaux Eskenazi</span>
+    <span class="nom-seq">Julia Baudet</span>
+  </div>
+  <div class="cv-photo gauche seq-cache"><picture><source srcset="assets/images/img-mezz-cv.webp" type="image/webp"><img id="img-mezz-cv" data-cap="Mezz Mezzrow" src="assets/images/img-mezz-cv.jpg" alt="Mezz Mezzrow"></picture><div class="lg">Mezz Mezzrow</div></div>
 </section>
 
 <section class="page" aria-label="Page 2" data-folio="2" data-son="EMB:DARN" data-piste="Darn That Dream — Thelonious Monk, 1963" data-panneau-page="src-p2" data-cote="g">
@@ -385,12 +422,35 @@ img.abs{display:block;}
   <figure><picture><source srcset="assets/images/img-bechet-couleur.webp" type="image/webp"><img src="assets/images/img-bechet-couleur.jpg" alt="Sidney Bechet" data-cap="Sidney Bechet — The Unique"></picture><figcaption>Sidney Bechet — The Unique</figcaption></figure>
 </div>
 
+<!-- ════════ BIOS ════════ -->
+<div class="panneau-source" id="src-raph" data-titre="Raphaël Naasz" hidden>
+  <figure><img src="assets/images/raph-naasz.jpg" alt="Raphaël Naasz" data-cap="Raphaël Naasz"><figcaption>Raphaël Naasz</figcaption></figure>
+  <p>Raphaël Naasz se forme d'abord à la musique, au basson et au violoncelle, au conservatoire de Nice. Cette formation musicale reste au cœur de son travail d'acteur et de metteur en scène, et la relation entre théâtre et musique traverse l'ensemble de son parcours. En 2013, il entre au Conservatoire National Supérieur d'Art Dramatique (CNSAD), où il travaille auprès de Sandy Ouvrier, Nada Strancar, Mario Gonzales, Stuart Seide et Xavier Gallais.</p>
+  <p>En 2016, il co-met en scène avec Antoine Sarrasin « Blue Train », spectacle de théâtre musical d'après la Prose du Transsibérien de Blaise Cendrars, créé au Théâtre de l'Étoile du Nord à l'invitation de Sarah Tick. La même année, il fait un passage par le cinéma d'auteur avec « L'amant d'un jour » de Philippe Garrel.</p>
+  <p>Au théâtre, il joue dans « Lourdes » de Paul Toucang (Théâtre National de la Colline, 2017) et « Les Bacchantes » d'Euripide, mises en scène par Marcus Borja, dont le travail repose sur le chœur et la voix (2017). En 2019, il rejoint Margaux Eskenazi pour « Et le Cœur Fume Encore ». Il est Hippolyte dans « Phèdre » (2020) puis Treplev dans « La Mouette » (2022), deux mises en scène de Brigitte Jacques-Wajeman au Théâtre de la Ville. Il retrouve Margaux Eskenazi pour « 1983 » (2023), puis pour « Kaddish, la femme chauve en peignoir rouge », créé au Théâtre Gérard Philipe de Saint-Denis en avril 2026.</p>
+  <p>Il réalise en 2022 un premier court métrage, « Hémisphère », et se forme au montage vidéo. Il développe aujourd'hui « La Rage de Vivre », un solo de théâtre musical autour du jazz, qui prolonge le travail amorcé avec « Blue Train ».</p>
+</div>
+<div class="panneau-source" id="src-margaux" data-titre="Margaux Eskenazi" hidden>
+  <figure><img src="assets/images/margaux-eskenazi.jpg" alt="Margaux Eskenazi" data-cap="Margaux Eskenazi"><figcaption>Margaux Eskenazi</figcaption></figure>
+  <p>Diplômée d'un Master II recherche en Études Théâtrales à Paris III et de la section mise en scène du CNSAD en 2014, Margaux Eskenazi crée la Compagnie Nova en 2007. Avec la Compagnie, son travail est fortement implanté en Seine-Saint-Denis où elle met en place depuis 2007 de nombreuses actions sur le territoire en lien avec ses créations. Elle intervient également dans les Écoles Supérieures d'Art Dramatique pour mener des ateliers auprès des élèves&nbsp;: l'École de la Comédie de Saint-Etienne, l'Esad à Paris, l'École du Nord à Lille. Après un travail sur les textes de répertoire, elle fonde une nouvelle recherche depuis 2016 qu'elle ne cesse d'expérimenter d'un théâtre alliant l'intime, le politique et le poétique. Chaque spectacle est une exploration de plusieurs matériaux pour faire naître une théâtralité polysémique et rizomathique. Toute sa recherche est centrée sur le travail mémoriel et les récits manquants qui nous aident à penser nos identités.</p>
+  <p>Entre 2016 et 2023, elle a développé un triptyque "Écrire en pays dominé" consacré aux amnésies coloniales et aux poétiques de la décolonisation&nbsp;: <em>Nous sommes de ceux qui disent non à l'ombre, Et le cœur fume encore, 1983.</em> Au printemps 2021, Margaux Eskenazi crée <em>Gilles ou qu'est-ce qu'un samouraï</em>, à partir de la conférence de Gilles Deleuze, <em>Qu'est-ce que l'acte de création&nbsp;?</em></p>
+  <p>En janvier 2024, elle crée <em>Si Vénus avait su</em>, spectacle en lieux non-dédiés, sur une commande du théâtre de la Poudrerie (Sevran) consacré aux socio-esthéticiennes. Elle crée également le spectacle de sortie de la Belle Troupe en juin 2024 au Théâtre de Nanterre-Amandiers, <em>Kaddish-mémoires</em> autour de la littérature d'Imre Kertész. A l'été 2025, Margaux Eskenazi a créé un spectacle consacré aux jeunes filles du Bon Pasteur pour la 17<sup>e</sup> édition du festival du Nouveau Théâtre Populaire.</p>
+  <p>Pour la saison 2025-2026, Margaux Eskenazi a créé <em>Kaddish, la femme chauve en peignoir rouge</em> autour des identités juives en France aujourd'hui. Elle prépare un spectacle jeune public prévu à l'automne 2026 et adapte avec Julie Deliquet et Julie André <em>L'instruction</em> de Peter Weiss, prévu pour l'automne 2027 au Théâtre National de la Colline.</p>
+</div>
+
 <aside id="panneau-g" class="panneau" role="dialog" aria-modal="false">
   <div class="tete"><h2></h2></div>
   <div class="corps"><div class="defile"></div><div class="fleche">&#9660;</div></div>
 </aside>
 <aside id="panneau-d" class="panneau" role="dialog" aria-modal="false">
   <div class="tete"><h2></h2></div>
+  <div class="corps"><div class="defile"></div><div class="fleche">&#9660;</div></div>
+</aside>
+<aside id="panneau-bio" class="panneau" role="dialog" aria-modal="true" aria-label="Biographie">
+  <div class="tete">
+    <h2></h2>
+    <button class="bio-fermer" aria-label="Fermer" style="margin-left:auto;background:none;border:none;color:var(--jaune);font-size:20px;cursor:pointer;padding:0 0 0 16px;line-height:1;">&times;</button>
+  </div>
   <div class="corps"><div class="defile"></div><div class="fleche">&#9660;</div></div>
 </aside>
 
@@ -550,15 +610,72 @@ img.abs{display:block;}
     }catch(e){}
     majAudio();                                  /* synchrone : enclenche la bonne piste + crédit */
   }
-  // ENTRÉE : le clic sur le bouton d'accueil débloque l'audio DANS le geste
-  // utilisateur (même contexte fiable que le bouton SON), puis efface l'écran.
+  // ENTRÉE : le clic débloque l'audio puis lance la séquence cinématique.
   var intro=document.getElementById('intro');
   var introBtn=document.getElementById('intro-btn');
+  var seq=document.getElementById('seq');
+  var nomSeqs=[].slice.call(document.querySelectorAll('.nom-seq'));
+
+  function lancerSequence(){
+    var p1=document.querySelector('[data-folio="1"]');
+
+    // Overlay noir INSTANTANÉ — couvre la transition intro→page (zéro gap)
+    if(seq){
+      seq.style.transition='none';
+      seq.style.opacity='1';
+      seq.style.visibility='visible';
+      seq.classList.add('actif');
+      seq.offsetWidth; // force reflow
+    }
+    document.body.classList.add('seq-en-cours');
+    document.body.style.overflow='hidden';
+
+    // L'overlay disparaît vite — le noir vient désormais du body (fond masqué par seq-cache)
+    setTimeout(function(){
+      if(seq){
+        seq.style.transition='opacity 0.5s ease';
+        seq.style.opacity='0';
+        setTimeout(function(){ if(seq) seq.style.visibility='hidden'; }, 550);
+      }
+    }, 400);
+
+    // Étape 1 — "Really the Blues" apparaît à sa place sur l'affiche noire
+    setTimeout(function(){
+      var el=p1&&p1.querySelector('.titre-en');
+      if(el) el.classList.add('seq-ok');
+    }, 800);
+
+    // Étape 2 — "Mezz Mezzrow" seul à sa place (span mezz-nom)
+    setTimeout(function(){
+      var el=p1&&p1.querySelector('.mezz-nom');
+      if(el) el.classList.add('seq-ok');
+    }, 2500);
+
+    // Étape 3 — fond photo + "La Rage de Vivre" + encadrure + "D'après / et Bernard Wolfe" + portrait Mezz
+    setTimeout(function(){
+      if(p1){
+        var reste=p1.querySelectorAll('.seq-cache:not(.seq-ok)');
+        for(var i=0;i<reste.length;i++) reste[i].classList.add('seq-ok');
+      }
+    }, 6000);
+
+    // Étapes 4-6 — Raphaël, Margaux, Julia
+    setTimeout(function(){ if(nomSeqs[0]) nomSeqs[0].classList.add('seq-ok'); }, 9000);
+    setTimeout(function(){ if(nomSeqs[1]) nomSeqs[1].classList.add('seq-ok'); }, 11000);
+    setTimeout(function(){ if(nomSeqs[2]) nomSeqs[2].classList.add('seq-ok'); }, 13000);
+
+    // Étape 7 — SOUND ON + crédit + scroll rétabli (simultanément)
+    setTimeout(function(){
+      document.body.classList.remove('seq-en-cours');
+      document.body.style.overflow='';
+    }, 15000);
+  }
+
   function entrer(){
     debloquer();                 // play() synchrone dans le clic → démarrage fiable
+    lancerSequence();            // overlay noir AVANT que l'intro disparaisse
     if(intro){ intro.classList.add('parti'); }
-    // sécurité : on retire l'écran du DOM après la transition
-    setTimeout(function(){ if(intro && intro.parentNode){ intro.parentNode.removeChild(intro); intro=null; } },900);
+    setTimeout(function(){ if(intro&&intro.parentNode){ intro.parentNode.removeChild(intro); intro=null; } }, 900);
   }
   if(introBtn){ introBtn.addEventListener('click', entrer); }
   // Fallback : si pour une raison quelconque l'écran n'est pas là, tout premier
@@ -574,7 +691,7 @@ img.abs{display:block;}
     actif=!actif;
     bouton.dataset.on=actif?'1':'0';
     bouton.setAttribute('aria-pressed',actif?'true':'false');
-    bouton.textContent=actif?'SON\u00A0ON':'SON\u00A0OFF';
+    bouton.textContent=actif?'SOUND\u00A0ON':'SOUND\u00A0OFF';
     if(actif){ courante=-1; majAudio(); }
     else{ Object.keys(pistes).forEach(function(k){ pistes[k].cible=0; fondu(pistes[k]); });
           pages.forEach(function(p){ p.classList.remove('son-actif'); }); }
@@ -757,6 +874,25 @@ img.abs{display:block;}
       key:(info.g||'')+'|'+(info.d||'')+'|'+(info.g2||'')
     };
   }
+  // Pour les pages à DEUX panneaux distincts (ex. page 5) : retourne {c1, c2} séparés.
+  // c1 = panneau principal (g+d), c2 = panneau secondaire (g2+d2).
+  function contenuMobileDeux(info){
+    var sq=info.g?srcHTML(info.g):null, st=info.d?srcHTML(info.d):null;
+    var so=info.g2?srcHTML(info.g2):null, sg=info.d2?srcHTML(info.d2):null;
+    var parts1=[sq,st].filter(function(s){return s&&s.html;});
+    var parts2=[so,sg].filter(function(s){return s&&s.html;});
+    var c1=parts1.length?{
+      titre:(sq&&sq.titre)||(st&&st.titre)||'',
+      html:parts1.map(function(s){return s.html;}).join('<hr class="separ">'),
+      key:(info.g||'')+'|'+(info.d||'')
+    }:null;
+    var c2=parts2.length?{
+      titre:'Sur Glissant',
+      html:parts2.map(function(s){return s.html;}).join('<hr class="separ">'),
+      key:(info.g2||'')+'|'+(info.d2||'')
+    }:null;
+    return {c1:c1,c2:c2};
+  }
   function tickMobile(){
     var H=window.innerHeight;
     // libère le figeage si on a recommencé à scroller la page
@@ -923,14 +1059,39 @@ img.abs{display:block;}
       var mp = mPages[i]; if(!mp) continue;
       var r = pages[i].getBoundingClientRect();
       var top = r.top, h = r.height;
-      // cloche de présence (mêmes repères que l'ancien tickMobile)
       var tIn0=0.30*H, tIn1=-0.02*H, tRd1=-(h*0.85), tOut=-(h*1.15);
       var pres=0;
+
+      if(mp.twoPanel){
+        // Page à deux panneaux : priorité aux pins actifs, sinon géométrie ou gap caché
+        if(mp.pin1 && mp.pin1.isActive){
+          if(1>bestPres){bestPres=1;best=i;bestC=mp.c1;bestLong=mp.isLong1;}
+          continue;
+        }
+        if(mp.pin2 && mp.pin2.isActive){
+          if(1>bestPres){bestPres=1;best=i;bestC=mp.c2;bestLong=mp.isLong2;}
+          continue;
+        }
+        // Gap entre les deux pins : panneau caché, citation Glissant lisible
+        var sy=window.scrollY||window.pageYOffset;
+        if(mp.pin1&&mp.pin2&&sy>mp.pin1.end&&sy<mp.pin2.start){continue;}
+        // Transitions géométriques (approche du pin1 ou sortie après pin2)
+        if(top<=tIn0&&top>tIn1) pres=(tIn0-top)/(tIn0-tIn1);
+        else if(top<=tIn1&&top>tRd1) pres=1;
+        else if(top<=tRd1&&top>tOut) pres=(top-tOut)/(tRd1-tOut);
+        pres=Math.max(0,Math.min(1,pres));
+        if(pres>bestPres){
+          var useC2=mp.pin2&&sy>(mp.pin2.end||Infinity);
+          bestPres=pres;best=i;bestC=useC2?mp.c2:mp.c1;bestLong=useC2?mp.isLong2:mp.isLong1;
+        }
+        continue;
+      }
+
+      // Page à panneau unique (logique d'origine)
       if(top<=tIn0 && top>tIn1)       pres=(tIn0-top)/(tIn0-tIn1);
       else if(top<=tIn1 && top>tRd1)  pres=1;
       else if(top<=tRd1 && top>tOut)  pres=(top-tOut)/(tRd1-tOut);
       pres=Math.max(0,Math.min(1,pres));
-      // pendant le gel d'une page, sa présence est forcée à 1 (panneau pleinement monté)
       if(mp.pin && mp.pin.isActive) pres=1;
       if(pres>bestPres){ bestPres=pres; best=i; bestC=mp.c; bestLong=mp.isLong; }
     }
@@ -938,12 +1099,12 @@ img.abs{display:block;}
     mShow(best, bestC, bestLong);
     var ap = easeInOutPoids(bestPres);
     gsap.set(PG.el, { yPercent:(1-ap)*100, opacity:0.10+0.90*ap });
-    // Hors gel : pendant l'APPARITION (page encore sous le pin, top>0) le texte est
-    // calé en haut ; pendant la DISPARITION (top<=0, pin déjà passé) on le laisse en
-    // bas (dernière position lue) pour éviter le saut du texte en fin de gel.
     if(bestLong){
-      var pin = mPages[best].pin;
-      if(!(pin && pin.isActive) && pages[best].getBoundingClientRect().top > 1) mSetTexteY(0);
+      var bmp=mPages[best];
+      var activePin=bmp.twoPanel
+        ?(bmp.pin1&&bmp.pin1.isActive?bmp.pin1:bmp.pin2&&bmp.pin2.isActive?bmp.pin2:null)
+        :bmp.pin;
+      if(!(activePin&&activePin.isActive)&&pages[best].getBoundingClientRect().top>1) mSetTexteY(0);
     }
   }
 
@@ -962,7 +1123,11 @@ img.abs{display:block;}
     // exacte de défilement est remesurée en live (mMesureOverflow) dans mShow.
     var panW = PG.el.offsetWidth || window.innerWidth;
     var teteH = PG.el.querySelector('.tete').offsetHeight || 52;
-    var panH = Math.max(60, Math.floor(window.innerHeight * 0.58) - teteH);
+    // panH = hauteur de la zone de texte (.corps) au nouveau max 65vh.
+    // On soustrait 30px supplémentaires pour détecter le contenu limite comme "long"
+    // et éviter de rater un pin sur les petits contenus (vaut mieux un pin de trop
+    // qu'un texte tronqué sans scroll). La mesure live corrige ensuite la distance réelle.
+    var panH = Math.max(60, Math.floor(window.innerHeight * 0.65) - teteH - 30);
     var ruler = document.createElement('div');
     ruler.setAttribute('aria-hidden','true');
     ruler.style.cssText = [
@@ -975,33 +1140,81 @@ img.abs{display:block;}
     ].join(';');
     document.body.appendChild(ruler);
 
+    function rulerMesure(html){
+      ruler.innerHTML = html;
+      var imgs=ruler.querySelectorAll('img');
+      for(var j=0;j<imgs.length;j++){
+        if(!imgs[j].naturalHeight) imgs[j].style.height=Math.round(panW*1.35)+'px';
+      }
+      return Math.max(0, ruler.scrollHeight - ruler.clientHeight);
+    }
+
     mPages = pages.map(function(page, i){
       var info = infosPage[i]; if(!info) return null;
-      var c = contenuMobile(info); if(!c) return null;
 
-      ruler.innerHTML = c.html;
-      // hauteur de substitution pour les images non chargées (évite de sous-estimer)
-      var imgs = ruler.querySelectorAll('img');
-      for(var j=0;j<imgs.length;j++){
-        if(!imgs[j].naturalHeight) imgs[j].style.height = Math.round(panW * 1.35)+'px';
+      // ── Page à DEUX panneaux distincts (ex. page 5 : "Qui il est" / "Sur Glissant") ──
+      if(info.g2 || info.d2){
+        var deux = contenuMobileDeux(info);
+        var c1=deux.c1, c2=deux.c2;
+        if(!c1&&!c2) return null;
+        var ov1=c1?rulerMesure(c1.html):0;
+        var ov2=c2?rulerMesure(c2.html):0;
+        var entry={twoPanel:true,c1:c1,isLong1:ov1>20,pin1:null,c2:c2,isLong2:ov2>20,pin2:null};
+        var gap=Math.min(250,Math.round(window.innerHeight*0.35));
+        if(c1){
+          entry.pin1=ScrollTrigger.create({
+            trigger:page, start:'top top',
+            end:'+='+(Math.max(ov1+80,500)),
+            pin:true,pinSpacing:true,scrub:true,invalidateOnRefresh:true,
+            onUpdate:function(self){
+              if(PG._mkey!==c1.key) return;
+              if(mRealOverflow<=0) mRealOverflow=mMesureOverflow();
+              mSetTexteY(self.progress*mRealOverflow);
+              mIndic(self.progress);
+            },
+            onRefresh:function(){if(PG._mkey===c1.key) mRealOverflow=mMesureOverflow();}
+          });
+        }
+        if(c2){
+          entry.pin2=ScrollTrigger.create({
+            trigger:page,
+            // démarre après la fin du pin1 + un gap de lecture naturel
+            start:function(){return (entry.pin1?entry.pin1.end:0)+gap;},
+            end:function(){return (entry.pin1?entry.pin1.end:0)+gap+Math.max(ov2+80,300);},
+            pin:true,pinSpacing:true,scrub:true,invalidateOnRefresh:true,
+            onUpdate:function(self){
+              if(PG._mkey!==c2.key) return;
+              if(mRealOverflow<=0) mRealOverflow=mMesureOverflow();
+              mSetTexteY(self.progress*mRealOverflow);
+              mIndic(self.progress);
+            },
+            onRefresh:function(){if(PG._mkey===c2.key) mRealOverflow=mMesureOverflow();}
+          });
+        }
+        return entry;
       }
-      var overflow = Math.max(0, ruler.scrollHeight - ruler.clientHeight);
+
+      // ── Page à panneau unique ──
+      var c = contenuMobile(info); if(!c) return null;
+      var overflow = rulerMesure(c.html);
       var isLong   = overflow > 20;
       var entry = { c:c, isLong:isLong, pin:null };
 
       if(isLong){
-        // distance de pin ≈ débordement → vitesse texte/doigt proche de 1:1.
+        // Distance de pin = max(overflow+80, 500) → lecture confortable même si le
+        // ruler sous-estime (images non chargées). La mesure live corrige la distance
+        // réelle de défilement via mRealOverflow dans onUpdate.
         entry.pin = ScrollTrigger.create({
           trigger    : page,
           start      : 'top top',
-          end        : '+='+(overflow + 80),
+          end        : '+='+(Math.max(overflow+80, 500)),
           pin        : true,
           pinSpacing : true,
           scrub      : true,
           invalidateOnRefresh: true,
           onUpdate : function(self){
             if(mActiveIdx!==i) return;
-            if(mRealOverflow<=0) mRealOverflow = mMesureOverflow();   // filet de sécurité
+            if(mRealOverflow<=0) mRealOverflow = mMesureOverflow();
             mSetTexteY(self.progress * mRealOverflow);
             mIndic(self.progress);
           },
@@ -1048,6 +1261,56 @@ img.abs{display:block;}
     var IM=e.target.closest('.panneau figure img[data-cap]');
     if(IM){ e.preventDefault(); e.stopPropagation(); ouvreLightbox(IM.getAttribute('src'), IM.getAttribute('data-cap')); }
   });
+
+  // BIO PANEL — ouvrir/fermer le panneau latéral biographie
+  (function(){
+    var panBio=document.getElementById('panneau-bio');
+    if(!panBio) return;
+    var bioTitre=panBio.querySelector('.tete h2');
+    var bioDefile=panBio.querySelector('.defile');
+
+    var bioCorps=panBio.querySelector('.corps');
+
+    function majIndicateurs(){
+      if(!bioDefile||!bioCorps) return;
+      var atTop=bioDefile.scrollTop<=4;
+      var atBot=bioDefile.scrollTop+bioDefile.clientHeight>=bioDefile.scrollHeight-4;
+      bioCorps.classList.toggle('dehaut',!atTop);
+      bioCorps.classList.toggle('debas',!atBot&&bioDefile.scrollHeight>bioDefile.clientHeight);
+    }
+
+    function ouvreBio(srcId){
+      var src=document.getElementById(srcId);
+      if(!src||!panBio) return;
+      var titre=src.getAttribute('data-titre')||'';
+      if(bioTitre) bioTitre.textContent=titre;
+      if(bioDefile){
+        bioDefile.innerHTML=src.innerHTML;
+        bioDefile.classList.add('scrollable');
+        bioDefile.scrollTop=0;
+        setTimeout(majIndicateurs,50);
+      }
+      panBio.classList.add('actif');
+      panBio.setAttribute('aria-hidden','false');
+    }
+    function fermeBio(){
+      if(!panBio) return;
+      panBio.classList.remove('actif');
+      panBio.setAttribute('aria-hidden','true');
+    }
+    if(bioDefile) bioDefile.addEventListener('scroll', majIndicateurs);
+
+    document.addEventListener('click',function(e){
+      var lien=e.target.closest('.nom-lien[data-bio]');
+      if(lien){ e.preventDefault(); ouvreBio(lien.getAttribute('data-bio')); return; }
+      var fermer=e.target.closest('.bio-fermer');
+      if(fermer){ fermeBio(); return; }
+      if(panBio.classList.contains('actif') && !panBio.contains(e.target)){ fermeBio(); }
+    });
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape') fermeBio();
+    });
+  })();
 
   dim();
   precreer();          // crée les <audio> tout de suite (play() fiable au 1er geste)
