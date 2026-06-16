@@ -646,30 +646,30 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
       if(el) el.classList.add('seq-ok');
     }, 800);
 
-    // Étape 2 — portrait + nom Mezz Mezzrow
+    // Étape 2 — "Mezz Mezzrow" à sa place dans l'affiche (byline)
     setTimeout(function(){
-      var el=p1&&p1.querySelector('.cv-photo.gauche');
+      var el=p1&&p1.querySelector('.byline');
       if(el) el.classList.add('seq-ok');
-    }, 3500);
+    }, 2000);
 
-    // Étape 3 — fond photo + "La Rage de Vivre" + encadrure + byline + Bechet
+    // Étape 3 — fond photo + "La Rage de Vivre" + encadrure + reste (sauf déjà révélés)
     setTimeout(function(){
       if(p1){
-        var reste=p1.querySelectorAll('.seq-cache');
+        var reste=p1.querySelectorAll('.seq-cache:not(.seq-ok)');
         for(var i=0;i<reste.length;i++) reste[i].classList.add('seq-ok');
       }
-    }, 7000);
+    }, 5500);
 
     // Étapes 4-6 — Raphaël, Margaux, Julia
-    setTimeout(function(){ if(nomSeqs[0]) nomSeqs[0].classList.add('seq-ok'); }, 11000);
-    setTimeout(function(){ if(nomSeqs[1]) nomSeqs[1].classList.add('seq-ok'); }, 13000);
-    setTimeout(function(){ if(nomSeqs[2]) nomSeqs[2].classList.add('seq-ok'); }, 15000);
+    setTimeout(function(){ if(nomSeqs[0]) nomSeqs[0].classList.add('seq-ok'); }, 9500);
+    setTimeout(function(){ if(nomSeqs[1]) nomSeqs[1].classList.add('seq-ok'); }, 11500);
+    setTimeout(function(){ if(nomSeqs[2]) nomSeqs[2].classList.add('seq-ok'); }, 13500);
 
     // Étape 7 — SOUND ON + crédit + scroll rétabli (simultanément)
     setTimeout(function(){
       document.body.classList.remove('seq-en-cours');
       document.body.style.overflow='';
-    }, 17000);
+    }, 15500);
   }
 
   function entrer(){
@@ -1270,12 +1270,27 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
     var bioTitre=panBio.querySelector('.tete h2');
     var bioDefile=panBio.querySelector('.defile');
 
+    var bioCorps=panBio.querySelector('.corps');
+
+    function majIndicateurs(){
+      if(!bioDefile||!bioCorps) return;
+      var atTop=bioDefile.scrollTop<=4;
+      var atBot=bioDefile.scrollTop+bioDefile.clientHeight>=bioDefile.scrollHeight-4;
+      bioCorps.classList.toggle('dehaut',!atTop);
+      bioCorps.classList.toggle('debas',!atBot&&bioDefile.scrollHeight>bioDefile.clientHeight);
+    }
+
     function ouvreBio(srcId){
       var src=document.getElementById(srcId);
       if(!src||!panBio) return;
       var titre=src.getAttribute('data-titre')||'';
       if(bioTitre) bioTitre.textContent=titre;
-      if(bioDefile) bioDefile.innerHTML=src.innerHTML;
+      if(bioDefile){
+        bioDefile.innerHTML=src.innerHTML;
+        bioDefile.classList.add('scrollable');
+        bioDefile.scrollTop=0;
+        setTimeout(majIndicateurs,50);
+      }
       panBio.classList.add('actif');
       panBio.setAttribute('aria-hidden','false');
     }
@@ -1284,6 +1299,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
       panBio.classList.remove('actif');
       panBio.setAttribute('aria-hidden','true');
     }
+    if(bioDefile) bioDefile.addEventListener('scroll', majIndicateurs);
 
     document.addEventListener('click',function(e){
       var lien=e.target.closest('.nom-lien[data-bio]');
