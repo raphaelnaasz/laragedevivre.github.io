@@ -451,7 +451,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
     <h2></h2>
     <button class="bio-fermer" aria-label="Fermer" style="margin-left:auto;background:none;border:none;color:var(--jaune);font-size:20px;cursor:pointer;padding:0 0 0 16px;line-height:1;">&times;</button>
   </div>
-  <div class="corps"><div class="defile"></div></div>
+  <div class="corps"><div class="defile"></div><div class="fleche">&#9660;</div></div>
 </aside>
 
 <div id="lightbox" role="dialog" aria-modal="true" aria-label="Image">
@@ -660,15 +660,15 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
     }, 6000);
 
     // Étapes 4-6 — Raphaël, Margaux, Julia
-    setTimeout(function(){ if(nomSeqs[0]) nomSeqs[0].classList.add('seq-ok'); }, 10000);
-    setTimeout(function(){ if(nomSeqs[1]) nomSeqs[1].classList.add('seq-ok'); }, 12000);
-    setTimeout(function(){ if(nomSeqs[2]) nomSeqs[2].classList.add('seq-ok'); }, 14000);
+    setTimeout(function(){ if(nomSeqs[0]) nomSeqs[0].classList.add('seq-ok'); }, 9000);
+    setTimeout(function(){ if(nomSeqs[1]) nomSeqs[1].classList.add('seq-ok'); }, 11000);
+    setTimeout(function(){ if(nomSeqs[2]) nomSeqs[2].classList.add('seq-ok'); }, 13000);
 
     // Étape 7 — SOUND ON + crédit + scroll rétabli (simultanément)
     setTimeout(function(){
       document.body.classList.remove('seq-en-cours');
       document.body.style.overflow='';
-    }, 16000);
+    }, 15000);
   }
 
   function entrer(){
