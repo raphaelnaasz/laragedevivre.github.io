@@ -152,21 +152,25 @@ img.abs{display:block;}
 /* éléments UI cachés pendant la séquence */
 body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:none;}
 /* overlay noir de la séquence (s'affiche après l'intro, avant la page 1) */
+/* overlay noir séquence — position fixe, z-index max, commence caché */
 #seq{position:fixed;inset:0;z-index:88;background:var(--noir);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:min(5vh,3em);pointer-events:none;
-  opacity:0;visibility:hidden;transition:opacity 1s ease,visibility 0s linear 1s;}
-#seq.actif{opacity:1;visibility:visible;transition:opacity 1s ease,visibility 0s;}
+  opacity:0;visibility:hidden;}
+#seq.actif{opacity:1;visibility:visible;}
 #seq-rtb{color:var(--jaune);font-family:inherit;font-weight:900;
   font-size:clamp(12px,3.5vw,17px);letter-spacing:.22em;text-transform:uppercase;
-  opacity:0;transition:opacity .9s ease;}
+  opacity:0;transition:opacity 1.5s ease;}
 #seq-mezz{color:var(--jaune);font-family:inherit;font-weight:900;
   font-size:clamp(28px,7.5vw,68px);letter-spacing:-0.015em;
-  opacity:0;transition:opacity .9s ease;}
+  opacity:0;transition:opacity 1.5s ease;}
 #seq.rtb-ok #seq-rtb{opacity:1;}
 #seq.mezz-ok #seq-mezz{opacity:1;}
-/* noms sur page 1 : apparition individuelle pendant la séquence */
-.nom-seq{display:block;opacity:0;transition:opacity .9s ease;}
+/* éléments page 1 cachés au départ, révélés par la séquence */
+.seq-cache{opacity:0;transition:opacity 2s ease;}
+.seq-cache.seq-ok{opacity:1;}
+/* noms sur page 1 : apparition individuelle */
+.nom-seq{display:block;opacity:0;transition:opacity 1.6s ease;}
 .nom-seq.seq-ok{opacity:1;}
 /* lien bio sur les noms */
 .nom-lien{cursor:pointer;border-bottom:1px dashed rgba(239,213,26,.55);}
@@ -295,19 +299,19 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 
 <main id="flux">
 <section class="page" aria-label="Page 1" data-folio="1" data-son="EMB:RTB" data-piste="Really the Blues — Mezz Mezzrow &amp; Sidney Bechet, 1938">
-  <picture><source srcset="assets/images/couverture-fond.webp" type="image/webp"><img class="fond" src="assets/images/couverture-fond.jpg" alt=""></picture>
-  <div class="cadre-couv"></div>
-  <div class="abs titre" style="left:calc(var(--u)*63.8);top:calc(var(--u)*66.8)">La Rage de</div>
-  <div class="abs titre" style="left:calc(var(--u)*63.8);top:calc(var(--u)*184.8)">Vivre</div>
-  <div class="abs titre-en" style="left:calc(var(--u)*63.8);top:calc(var(--u)*289)">Really the Blues</div>
-  <div class="abs byline" style="right:calc(var(--u)*30);left:auto;top:calc(var(--u)*452)">D’après le roman de<br><span class="lien-img mezz-nom" data-img-ref="img-mezz-cv" data-cap="Mezz Mezzrow">Mezz Mezzrow</span><br>et Bernard Wolfe</div>
+  <picture><source srcset="assets/images/couverture-fond.webp" type="image/webp"><img class="fond seq-cache" src="assets/images/couverture-fond.jpg" alt=""></picture>
+  <div class="cadre-couv seq-cache"></div>
+  <div class="abs titre seq-cache" style="left:calc(var(--u)*63.8);top:calc(var(--u)*66.8)">La Rage de</div>
+  <div class="abs titre seq-cache" style="left:calc(var(--u)*63.8);top:calc(var(--u)*184.8)">Vivre</div>
+  <div class="abs titre-en seq-cache" style="left:calc(var(--u)*63.8);top:calc(var(--u)*289)">Really the Blues</div>
+  <div class="abs byline seq-cache" style="right:calc(var(--u)*30);left:auto;top:calc(var(--u)*452)">D’après le roman de<br><span class="lien-img mezz-nom" data-img-ref="img-mezz-cv" data-cap="Mezz Mezzrow">Mezz Mezzrow</span><br>et Bernard Wolfe</div>
   <div class="abs noms" style="left:calc(var(--u)*78.5);top:calc(var(--u)*585.4)">
     <span class="nom-seq nom-lien" data-bio="src-raph">Raphaël Naasz</span>
     <span class="nom-seq nom-lien" data-bio="src-margaux">Margaux Eskenazi</span>
     <span class="nom-seq">Julia Baudet</span>
   </div>
-  <div class="cv-photo gauche"><picture><source srcset="assets/images/img-mezz-cv.webp" type="image/webp"><img id="img-mezz-cv" data-cap="Mezz Mezzrow" src="assets/images/img-mezz-cv.jpg" alt="Mezz Mezzrow"></picture><div class="lg">Mezz Mezzrow</div></div>
-  <div class="cv-photo droite"><picture><source srcset="assets/images/img-bechet-cv.webp" type="image/webp"><img id="img-bechet-cv" data-cap="Sidney Bechet" src="assets/images/img-bechet-cv.jpg" alt="Sidney Bechet"></picture><div class="lg">Sidney Bechet</div></div>
+  <div class="cv-photo gauche seq-cache"><picture><source srcset="assets/images/img-mezz-cv.webp" type="image/webp"><img id="img-mezz-cv" data-cap="Mezz Mezzrow" src="assets/images/img-mezz-cv.jpg" alt="Mezz Mezzrow"></picture><div class="lg">Mezz Mezzrow</div></div>
+  <div class="cv-photo droite seq-cache"><picture><source srcset="assets/images/img-bechet-cv.webp" type="image/webp"><img id="img-bechet-cv" data-cap="Sidney Bechet" src="assets/images/img-bechet-cv.jpg" alt="Sidney Bechet"></picture><div class="lg">Sidney Bechet</div></div>
 </section>
 
 <section class="page" aria-label="Page 2" data-folio="2" data-son="EMB:DARN" data-piste="Darn That Dream — Thelonious Monk, 1963" data-panneau-page="src-p2" data-cote="g">
@@ -622,39 +626,51 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
   var nomSeqs=[].slice.call(document.querySelectorAll('.nom-seq'));
 
   function lancerSequence(){
-    // 1. Bloquer le scroll + cacher UI
+    // Overlay noir INSTANTANÉ — avant que l'intro disparaisse, zéro gap
+    if(seq){
+      seq.style.transition='none';
+      seq.style.opacity='1';
+      seq.style.visibility='visible';
+      seq.classList.add('actif');
+      seq.offsetWidth; // force reflow — réactive les transitions CSS après
+    }
     document.body.classList.add('seq-en-cours');
     document.body.style.overflow='hidden';
-    // 2. Overlay noir de séquence
-    if(seq){ seq.classList.add('actif'); }
-    // 3. "Really the Blues" apparaît
-    setTimeout(function(){ if(seq) seq.classList.add('rtb-ok'); }, 150);
-    // 4. "Mezz Mezzrow" apparaît
-    setTimeout(function(){ if(seq) seq.classList.add('mezz-ok'); }, 1600);
-    // 5. Overlay fond en transparent → page 1 image + titre + byline révélés
+
+    // Étape 1 — "Really the Blues" sur noir
+    setTimeout(function(){ if(seq) seq.classList.add('rtb-ok'); }, 800);
+
+    // Étape 2 — "Mezz Mezzrow" sur noir
+    setTimeout(function(){ if(seq) seq.classList.add('mezz-ok'); }, 3500);
+
+    // Étape 3 — fond noir se retire, page 1 se compose (fond + titre + encadrure + byline)
     setTimeout(function(){
-      if(seq){ seq.style.opacity='0'; seq.style.transition='opacity 1.2s ease'; }
-      setTimeout(function(){ if(seq){ seq.style.visibility='hidden'; } }, 1300);
-    }, 2900);
-    // 6. Noms apparaissent un à un sur page 1
-    [3900, 4900, 5800].forEach(function(t, idx){
-      setTimeout(function(){ if(nomSeqs[idx]) nomSeqs[idx].classList.add('seq-ok'); }, t);
-    });
-    // 7. SON + crédit apparaissent
-    setTimeout(function(){
-      document.body.classList.remove('seq-en-cours');
-    }, 6800);
-    // 8. Scroll réactivé
-    setTimeout(function(){
-      document.body.style.overflow='';
-    }, 7600);
+      if(seq){
+        seq.style.transition='opacity 3s ease';
+        seq.style.opacity='0';
+        setTimeout(function(){ if(seq){ seq.style.visibility='hidden'; } }, 3100);
+      }
+      var p1=document.querySelector('[data-folio="1"]');
+      if(p1){ var cc=p1.querySelectorAll('.seq-cache'); for(var i=0;i<cc.length;i++) cc[i].classList.add('seq-ok'); }
+    }, 7000);
+
+    // Étape 4-6 — noms un à un
+    setTimeout(function(){ if(nomSeqs[0]) nomSeqs[0].classList.add('seq-ok'); }, 11000);
+    setTimeout(function(){ if(nomSeqs[1]) nomSeqs[1].classList.add('seq-ok'); }, 13000);
+    setTimeout(function(){ if(nomSeqs[2]) nomSeqs[2].classList.add('seq-ok'); }, 15000);
+
+    // Étape 7 — SON ON + crédit musique
+    setTimeout(function(){ document.body.classList.remove('seq-en-cours'); }, 17000);
+
+    // Scroll rétabli
+    setTimeout(function(){ document.body.style.overflow=''; }, 18000);
   }
 
   function entrer(){
     debloquer();                 // play() synchrone dans le clic → démarrage fiable
+    lancerSequence();            // overlay noir AVANT que l'intro disparaisse
     if(intro){ intro.classList.add('parti'); }
     setTimeout(function(){ if(intro&&intro.parentNode){ intro.parentNode.removeChild(intro); intro=null; } }, 900);
-    lancerSequence();
   }
   if(introBtn){ introBtn.addEventListener('click', entrer); }
   // Fallback : si pour une raison quelconque l'écran n'est pas là, tout premier
