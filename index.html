@@ -174,7 +174,7 @@ img.abs{display:block;}
   /* ── SHEET BAS piloté par le scroll (transposition verticale du moteur desktop) ── */
   #panneau-g{
     left:0;right:0;bottom:0;top:auto;width:100%;
-    height:auto;max-height:58vh;
+    height:auto;max-height:65vh;
     border:0;border-top:1px solid var(--jaune);
     border-radius:18px 18px 0 0;
     background:rgba(14,14,14,.97);
@@ -190,7 +190,11 @@ img.abs{display:block;}
     width:38px;height:4px;border-radius:3px;background:rgba(239,213,26,.45);}
   #panneau-g h2{font-size:17px;}
   #panneau-g .corps{margin-top:10px;}
-  #panneau-g .defile{padding:2px 22px 30px;}
+  /* height:auto+overflow:visible : corrige le bug où height:100% ne se résolvait pas
+     dans la chaîne flex (max-height:auto), rendant le contenu invisible. La fenêtre
+     .corps (overflow:hidden) assure le clipping ; le pin GSAP déplace .defile par
+     transform pour révéler le débordement. */
+  #panneau-g .defile{height:auto;overflow:visible;padding:2px 22px 30px;}
   #panneau-g .defile p{font-size:12.5px;line-height:1.6;}
   /* état FIGÉ (après tap) : texte scrollable à la main, sheet stable */
   #panneau-g.fige{transition:transform .3s cubic-bezier(.22,.8,.2,1);}
@@ -204,12 +208,9 @@ img.abs{display:block;}
   /* les pages à panneau : indice visuel discret qu'un texte est disponible */
   .page[data-panneau-page] .entete::after,
   .page .declencheur.premier{}
-  /* GSAP pin : le texte est déplacé par transform (GPU). .corps reste la fenêtre
-     (overflow:hidden, hauteur définie par le flex) ; .defile prend sa hauteur de
-     contenu et déborde, puis on le translate vers le haut. Évite le bug de
-     résolution de height:100% en flex mobile qui rendait scrollTop inopérant. */
-  #panneau-g .defile.gsap-driven{height:auto;min-height:100%;overflow:visible;
-    will-change:transform;transform:translate3d(0,0,0);transition:none;}
+  /* gsap-driven : GPU transform + blocage des transitions CSS (height/overflow déjà
+     corrects sur la base mobile, on ajoute seulement le hint will-change). */
+  #panneau-g .defile.gsap-driven{will-change:transform;transform:translate3d(0,0,0);transition:none;}
 }
 /* ── diptyque panoramique pages 8-9 : côte à côte sur desktop ── */
 .diptique-pano{display:flex;flex-direction:row;width:100%;gap:0;align-items:stretch;}
@@ -757,6 +758,25 @@ img.abs{display:block;}
       key:(info.g||'')+'|'+(info.d||'')+'|'+(info.g2||'')
     };
   }
+  // Pour les pages à DEUX panneaux distincts (ex. page 5) : retourne {c1, c2} séparés.
+  // c1 = panneau principal (g+d), c2 = panneau secondaire (g2+d2).
+  function contenuMobileDeux(info){
+    var sq=info.g?srcHTML(info.g):null, st=info.d?srcHTML(info.d):null;
+    var so=info.g2?srcHTML(info.g2):null, sg=info.d2?srcHTML(info.d2):null;
+    var parts1=[sq,st].filter(function(s){return s&&s.html;});
+    var parts2=[so,sg].filter(function(s){return s&&s.html;});
+    var c1=parts1.length?{
+      titre:(sq&&sq.titre)||(st&&st.titre)||'',
+      html:parts1.map(function(s){return s.html;}).join('<hr class="separ">'),
+      key:(info.g||'')+'|'+(info.d||'')
+    }:null;
+    var c2=parts2.length?{
+      titre:'Sur Glissant',
+      html:parts2.map(function(s){return s.html;}).join('<hr class="separ">'),
+      key:(info.g2||'')+'|'+(info.d2||'')
+    }:null;
+    return {c1:c1,c2:c2};
+  }
   function tickMobile(){
     var H=window.innerHeight;
     // libère le figeage si on a recommencé à scroller la page
@@ -923,14 +943,39 @@ img.abs{display:block;}
       var mp = mPages[i]; if(!mp) continue;
       var r = pages[i].getBoundingClientRect();
       var top = r.top, h = r.height;
-      // cloche de présence (mêmes repères que l'ancien tickMobile)
       var tIn0=0.30*H, tIn1=-0.02*H, tRd1=-(h*0.85), tOut=-(h*1.15);
       var pres=0;
+
+      if(mp.twoPanel){
+        // Page à deux panneaux : priorité aux pins actifs, sinon géométrie ou gap caché
+        if(mp.pin1 && mp.pin1.isActive){
+          if(1>bestPres){bestPres=1;best=i;bestC=mp.c1;bestLong=mp.isLong1;}
+          continue;
+        }
+        if(mp.pin2 && mp.pin2.isActive){
+          if(1>bestPres){bestPres=1;best=i;bestC=mp.c2;bestLong=mp.isLong2;}
+          continue;
+        }
+        // Gap entre les deux pins : panneau caché, citation Glissant lisible
+        var sy=window.scrollY||window.pageYOffset;
+        if(mp.pin1&&mp.pin2&&sy>mp.pin1.end&&sy<mp.pin2.start){continue;}
+        // Transitions géométriques (approche du pin1 ou sortie après pin2)
+        if(top<=tIn0&&top>tIn1) pres=(tIn0-top)/(tIn0-tIn1);
+        else if(top<=tIn1&&top>tRd1) pres=1;
+        else if(top<=tRd1&&top>tOut) pres=(top-tOut)/(tRd1-tOut);
+        pres=Math.max(0,Math.min(1,pres));
+        if(pres>bestPres){
+          var useC2=mp.pin2&&sy>(mp.pin2.end||Infinity);
+          bestPres=pres;best=i;bestC=useC2?mp.c2:mp.c1;bestLong=useC2?mp.isLong2:mp.isLong1;
+        }
+        continue;
+      }
+
+      // Page à panneau unique (logique d'origine)
       if(top<=tIn0 && top>tIn1)       pres=(tIn0-top)/(tIn0-tIn1);
       else if(top<=tIn1 && top>tRd1)  pres=1;
       else if(top<=tRd1 && top>tOut)  pres=(top-tOut)/(tRd1-tOut);
       pres=Math.max(0,Math.min(1,pres));
-      // pendant le gel d'une page, sa présence est forcée à 1 (panneau pleinement monté)
       if(mp.pin && mp.pin.isActive) pres=1;
       if(pres>bestPres){ bestPres=pres; best=i; bestC=mp.c; bestLong=mp.isLong; }
     }
@@ -938,12 +983,12 @@ img.abs{display:block;}
     mShow(best, bestC, bestLong);
     var ap = easeInOutPoids(bestPres);
     gsap.set(PG.el, { yPercent:(1-ap)*100, opacity:0.10+0.90*ap });
-    // Hors gel : pendant l'APPARITION (page encore sous le pin, top>0) le texte est
-    // calé en haut ; pendant la DISPARITION (top<=0, pin déjà passé) on le laisse en
-    // bas (dernière position lue) pour éviter le saut du texte en fin de gel.
     if(bestLong){
-      var pin = mPages[best].pin;
-      if(!(pin && pin.isActive) && pages[best].getBoundingClientRect().top > 1) mSetTexteY(0);
+      var bmp=mPages[best];
+      var activePin=bmp.twoPanel
+        ?(bmp.pin1&&bmp.pin1.isActive?bmp.pin1:bmp.pin2&&bmp.pin2.isActive?bmp.pin2:null)
+        :bmp.pin;
+      if(!(activePin&&activePin.isActive)&&pages[best].getBoundingClientRect().top>1) mSetTexteY(0);
     }
   }
 
@@ -962,7 +1007,11 @@ img.abs{display:block;}
     // exacte de défilement est remesurée en live (mMesureOverflow) dans mShow.
     var panW = PG.el.offsetWidth || window.innerWidth;
     var teteH = PG.el.querySelector('.tete').offsetHeight || 52;
-    var panH = Math.max(60, Math.floor(window.innerHeight * 0.58) - teteH);
+    // panH = hauteur de la zone de texte (.corps) au nouveau max 65vh.
+    // On soustrait 30px supplémentaires pour détecter le contenu limite comme "long"
+    // et éviter de rater un pin sur les petits contenus (vaut mieux un pin de trop
+    // qu'un texte tronqué sans scroll). La mesure live corrige ensuite la distance réelle.
+    var panH = Math.max(60, Math.floor(window.innerHeight * 0.65) - teteH - 30);
     var ruler = document.createElement('div');
     ruler.setAttribute('aria-hidden','true');
     ruler.style.cssText = [
@@ -975,33 +1024,81 @@ img.abs{display:block;}
     ].join(';');
     document.body.appendChild(ruler);
 
+    function rulerMesure(html){
+      ruler.innerHTML = html;
+      var imgs=ruler.querySelectorAll('img');
+      for(var j=0;j<imgs.length;j++){
+        if(!imgs[j].naturalHeight) imgs[j].style.height=Math.round(panW*1.35)+'px';
+      }
+      return Math.max(0, ruler.scrollHeight - ruler.clientHeight);
+    }
+
     mPages = pages.map(function(page, i){
       var info = infosPage[i]; if(!info) return null;
-      var c = contenuMobile(info); if(!c) return null;
 
-      ruler.innerHTML = c.html;
-      // hauteur de substitution pour les images non chargées (évite de sous-estimer)
-      var imgs = ruler.querySelectorAll('img');
-      for(var j=0;j<imgs.length;j++){
-        if(!imgs[j].naturalHeight) imgs[j].style.height = Math.round(panW * 1.35)+'px';
+      // ── Page à DEUX panneaux distincts (ex. page 5 : "Qui il est" / "Sur Glissant") ──
+      if(info.g2 || info.d2){
+        var deux = contenuMobileDeux(info);
+        var c1=deux.c1, c2=deux.c2;
+        if(!c1&&!c2) return null;
+        var ov1=c1?rulerMesure(c1.html):0;
+        var ov2=c2?rulerMesure(c2.html):0;
+        var entry={twoPanel:true,c1:c1,isLong1:ov1>20,pin1:null,c2:c2,isLong2:ov2>20,pin2:null};
+        var gap=Math.min(250,Math.round(window.innerHeight*0.35));
+        if(c1){
+          entry.pin1=ScrollTrigger.create({
+            trigger:page, start:'top top',
+            end:'+='+(Math.max(ov1+80,500)),
+            pin:true,pinSpacing:true,scrub:true,invalidateOnRefresh:true,
+            onUpdate:function(self){
+              if(PG._mkey!==c1.key) return;
+              if(mRealOverflow<=0) mRealOverflow=mMesureOverflow();
+              mSetTexteY(self.progress*mRealOverflow);
+              mIndic(self.progress);
+            },
+            onRefresh:function(){if(PG._mkey===c1.key) mRealOverflow=mMesureOverflow();}
+          });
+        }
+        if(c2){
+          entry.pin2=ScrollTrigger.create({
+            trigger:page,
+            // démarre après la fin du pin1 + un gap de lecture naturel
+            start:function(){return (entry.pin1?entry.pin1.end:0)+gap;},
+            end:function(){return (entry.pin1?entry.pin1.end:0)+gap+Math.max(ov2+80,300);},
+            pin:true,pinSpacing:true,scrub:true,invalidateOnRefresh:true,
+            onUpdate:function(self){
+              if(PG._mkey!==c2.key) return;
+              if(mRealOverflow<=0) mRealOverflow=mMesureOverflow();
+              mSetTexteY(self.progress*mRealOverflow);
+              mIndic(self.progress);
+            },
+            onRefresh:function(){if(PG._mkey===c2.key) mRealOverflow=mMesureOverflow();}
+          });
+        }
+        return entry;
       }
-      var overflow = Math.max(0, ruler.scrollHeight - ruler.clientHeight);
+
+      // ── Page à panneau unique ──
+      var c = contenuMobile(info); if(!c) return null;
+      var overflow = rulerMesure(c.html);
       var isLong   = overflow > 20;
       var entry = { c:c, isLong:isLong, pin:null };
 
       if(isLong){
-        // distance de pin ≈ débordement → vitesse texte/doigt proche de 1:1.
+        // Distance de pin = max(overflow+80, 500) → lecture confortable même si le
+        // ruler sous-estime (images non chargées). La mesure live corrige la distance
+        // réelle de défilement via mRealOverflow dans onUpdate.
         entry.pin = ScrollTrigger.create({
           trigger    : page,
           start      : 'top top',
-          end        : '+='+(overflow + 80),
+          end        : '+='+(Math.max(overflow+80, 500)),
           pin        : true,
           pinSpacing : true,
           scrub      : true,
           invalidateOnRefresh: true,
           onUpdate : function(self){
             if(mActiveIdx!==i) return;
-            if(mRealOverflow<=0) mRealOverflow = mMesureOverflow();   // filet de sécurité
+            if(mRealOverflow<=0) mRealOverflow = mMesureOverflow();
             mSetTexteY(self.progress * mRealOverflow);
             mIndic(self.progress);
           },
