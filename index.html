@@ -229,6 +229,9 @@ img.abs{display:block;}
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
 </head>
+<!-- GSAP + ScrollTrigger via CDN (mobile scroll engine) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <body>
 
 <button id="son" data-on="1" aria-pressed="true">SON&nbsp;ON</button>
@@ -652,7 +655,7 @@ img.abs{display:block;}
   }
 
   function tick(){
-    if(etroit()){ tickMobile(); majAudio(); raf=null; return; }
+    if(etroit()){ if(!gsapMobileReady) tickMobile(); majAudio(); raf=null; return; }
     var H=window.innerHeight;
     var actiG=null, actiD=null, progG=0, progD=0, drG=0, drD=0, needsGScale=false, needsDScale=false;
     for(var i=0;i<pages.length;i++){
@@ -711,7 +714,18 @@ img.abs{display:block;}
   var raf=null;
   function demande(){ if(raf==null) raf=requestAnimationFrame(tick); }
   window.addEventListener('scroll', demande, {passive:true});
-  window.addEventListener('resize', function(){ dim(); demande(); });
+  window.addEventListener('resize', function(){
+    dim(); demande();
+    if(typeof ScrollTrigger!=='undefined'){
+      if(etroit() && !gsapMobileReady){ setupGSAPMobile(); }
+      if(!etroit() && gsapMobileReady){
+        ScrollTrigger.getAll().forEach(function(t){ t.kill(); });
+        gsapMobileReady=false;
+        gsap.set(PG.el,{clearProps:'all'});
+      }
+      ScrollTrigger.refresh();
+    }
+  });
 
   /* ════════ MOTEUR MOBILE — sheet bas piloté par le scroll ════════
      Transposition verticale du moteur desktop. Pour la page active (celle dont
@@ -829,6 +843,137 @@ img.abs{display:block;}
   //    (mécanisme retiré : il entrait en conflit avec le cycle de vie continu et
   //     rendait la réapparition des textes incertaine.) Les liens-images restent actifs.
 
+  /* ════════════════════════════════════════════════════════════════
+     MOTEUR MOBILE v2 — GSAP ScrollTrigger (remplace tickMobile)
+     ════════════════════════════════════════════════════════════════
+     • Texte court → APPEAR (scrub) + DISAPPEAR (scrub), sans freeze
+     • Texte long  → APPEAR + PIN (page gelée, texte défile) + DISAPPEAR
+     Fallback : si GSAP ne charge pas, tickMobile() reste actif.
+     Safari : ignoreMobileResize évite les recalculs liés à la barre d'adresse.
+     ════════════════════════════════════════════════════════════════ */
+  var gsapMobileReady = false;
+
+  function setupGSAPMobile(){
+    if(!etroit()) return;
+    if(typeof gsap==='undefined'||typeof ScrollTrigger==='undefined') return;
+
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    gsap.set(PG.el, { yPercent:100, opacity:0 });
+    PG.el.classList.remove('actif');
+
+    // Ruler DOM : mesure le débordement de texte hors du panel avant de créer les triggers
+    var panW = PG.el.offsetWidth || window.innerWidth;
+    var panH = Math.floor(window.innerHeight * 0.58);
+    var ruler = document.createElement('div');
+    ruler.setAttribute('aria-hidden','true');
+    ruler.style.cssText = [
+      'position:fixed','visibility:hidden','pointer-events:none',
+      'left:-9999px','top:0',
+      'width:'+panW+'px','max-height:'+panH+'px',
+      'padding:2px 22px 30px',
+      'font-size:12.5px','line-height:1.6','font-weight:900',
+      'overflow:hidden','box-sizing:border-box'
+    ].join(';');
+    document.body.appendChild(ruler);
+
+    var currentIdx = -1;
+
+    function showM(idx, c){
+      if(currentIdx===idx && PG._mkey===c.key){ PG.el.classList.add('actif'); return; }
+      currentIdx = idx;
+      PG.h2.textContent   = c.titre;
+      PG.defile.innerHTML = c.html;
+      PG.defile.scrollTop = 0;
+      PG._mkey = c.key;
+      PG.el.classList.add('actif');
+      PG.corps.classList.remove('dehaut','debas');
+    }
+    function hideM(idx){
+      if(currentIdx!==idx) return;
+      PG.el.classList.remove('actif');
+      PG.corps.classList.remove('dehaut','debas');
+      currentIdx = -1;
+    }
+    function majIndicateurs(){
+      var max = PG.defile.scrollHeight - PG.defile.clientHeight;
+      if(max>4){
+        PG.corps.classList.toggle('dehaut', PG.defile.scrollTop>6);
+        PG.corps.classList.toggle('debas',  PG.defile.scrollTop<max-6);
+      } else { PG.corps.classList.remove('dehaut','debas'); }
+    }
+
+    pages.forEach(function(page, i){
+      var info = infosPage[i]; if(!info) return;
+      var c = contenuMobile(info); if(!c) return;
+
+      ruler.innerHTML = c.html;
+      var overflow = Math.max(0, ruler.scrollHeight - ruler.clientHeight);
+      var isLong   = overflow > 20;
+      var pinExtra = overflow + 80;
+
+      // 1. APPEAR
+      ScrollTrigger.create({
+        trigger     : page,
+        start       : 'top 80%',
+        end         : 'top 5%',
+        scrub       : 0.5,
+        onEnter     : function(){ showM(i,c); },
+        onEnterBack : function(){ showM(i,c); },
+        onLeaveBack : function(){
+          gsap.set(PG.el, { yPercent:100, opacity:0 });
+          hideM(i);
+        },
+        onUpdate : function(self){
+          if(currentIdx!==i) return;
+          var p = easeInOutPoids(self.progress);
+          gsap.set(PG.el, { yPercent:(1-p)*100, opacity:0.1+0.9*p });
+        }
+      });
+
+      if(isLong){
+        // 2a. PIN + défilement texte (long)
+        ScrollTrigger.create({
+          trigger    : page,
+          start      : 'top top',
+          end        : '+='+pinExtra,
+          pin        : true,
+          pinSpacing : true,
+          scrub      : true,
+          onEnterBack: function(){ showM(i,c); gsap.set(PG.el, { yPercent:0, opacity:1 }); },
+          onLeave    : function(){
+            gsap.set(PG.el, { yPercent:100, opacity:0 });
+            hideM(i);
+            gsap.set(PG.el, { clearProps:'transform,opacity' });
+          },
+          onUpdate : function(self){
+            if(currentIdx!==i) return;
+            var max = PG.defile.scrollHeight - PG.defile.clientHeight;
+            if(max>4){ PG.defile.scrollTop = self.progress*max; majIndicateurs(); }
+          }
+        });
+      } else {
+        // 2b. DISAPPEAR (court)
+        ScrollTrigger.create({
+          trigger : page,
+          start   : 'bottom 60%',
+          end     : 'bottom top',
+          scrub   : 0.5,
+          onLeave : function(){ gsap.set(PG.el, { clearProps:'transform,opacity' }); hideM(i); },
+          onUpdate: function(self){
+            if(currentIdx!==i) return;
+            var p = easeInOutPoids(self.progress);
+            gsap.set(PG.el, { yPercent:p*100, opacity:Math.max(0,1-p) });
+          }
+        });
+      }
+    });
+
+    document.body.removeChild(ruler);
+    gsapMobileReady = true;
+  }
+
   /* ════════ LIGHTBOX (liens-images dans le texte) ════════ */
   var lb=document.getElementById('lightbox');
   var lbImg=lb.querySelector('img'), lbCap=lb.querySelector('.lg-cap');
@@ -861,7 +1006,7 @@ img.abs{display:block;}
 
   dim();
   precreer();          // crée les <audio> tout de suite (play() fiable au 1er geste)
-  // démarrage
+  setupGSAPMobile();   // init GSAP mobile après layout stable
   requestAnimationFrame(function(){ tick(); });
 })();
 
