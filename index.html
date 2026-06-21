@@ -87,17 +87,18 @@ img.abs{display:block;}
   color:var(--jaune);text-align:center;text-shadow:0 0 2px rgba(0,0,0,.6);pointer-events:auto;}
 .ab-toggle{position:relative;display:inline-flex;align-items:center;gap:calc(var(--u)*4);
   border:calc(var(--u)*0.9) solid var(--jaune);border-radius:999px;
-  padding:calc(var(--u)*3.2) calc(var(--u)*6.5);background:rgba(0,0,0,.4);margin-top:calc(var(--u)*9);}
+  padding:calc(var(--u)*3.2) calc(var(--u)*6.5);background:rgba(0,0,0,.4);}
 .ab-pos{background:none;border:none;cursor:pointer;color:var(--jaune);opacity:.45;font:inherit;
   font-size:calc(var(--u)*8.4);letter-spacing:.12em;text-transform:uppercase;padding:0 calc(var(--u)*2);
   transition:opacity .25s;}
 .ab-pos.actif{opacity:1;}
-/* knob = pastille placée AU-DESSUS de la bascule, glisse vers la face active */
-.ab-knob{position:absolute;left:50%;top:calc(var(--u)*-8);flex:none;
-  width:calc(var(--u)*6.5);height:calc(var(--u)*6.5);border-radius:50%;background:var(--jaune);
-  box-shadow:0 0 calc(var(--u)*5) rgba(239,213,26,.6);transition:transform .28s ease;}
-.ab-switch[data-face="A"] .ab-knob{transform:translateX(calc(-50% - var(--u)*17));}
-.ab-switch[data-face="B"] .ab-knob{transform:translateX(calc(-50% + var(--u)*17));}
+/* knob = pastille entre les deux libellés, glisse vers la face active */
+.ab-knob{flex:none;width:calc(var(--u)*6);height:calc(var(--u)*6);border-radius:50%;
+  background:var(--jaune);transition:transform .28s ease;}
+.ab-switch[data-face="A"] .ab-knob{transform:translateX(calc(var(--u)*-1.4));}
+.ab-switch[data-face="B"] .ab-knob{transform:translateX(calc(var(--u)*1.4));}
+/* page 9 : switch aligné sur la ligne de fracture verticale de l'image (~53 %) */
+#ab-p9{left:53%;}
 .ab-meta{font-size:calc(var(--u)*5.4);letter-spacing:.06em;opacity:.92;text-transform:uppercase;}
 .ab-legende{font-size:calc(var(--u)*4.6);letter-spacing:.04em;opacity:.62;font-style:italic;}
 
@@ -117,6 +118,34 @@ img.abs{display:block;}
 .p16-pochette img{width:100%;display:block;border:calc(var(--u)*0.8) solid rgba(239,213,26,.5);box-shadow:0 calc(var(--u)*4) calc(var(--u)*16) rgba(0,0,0,.5);}
 .p16-pochette figcaption{margin-top:calc(var(--u)*3);color:var(--jaune);text-align:right;display:flex;flex-direction:column;gap:calc(var(--u)*1);
   font-size:calc(var(--u)*4.6);letter-spacing:.04em;opacity:.9;text-shadow:0 0 2px rgba(0,0,0,.6);}
+
+/* ── double page 13-14 : révélation argentique du texte (Hart's Island) ── */
+/* cercle blanc pulsant sur le visage du jeune homme (page 14) — rond, pas ovale */
+.hi-cercle{position:absolute;left:69%;top:48%;width:calc(var(--u)*52);height:calc(var(--u)*52);
+  transform:translate(-50%,-50%);border-radius:50%;background:transparent;cursor:pointer;z-index:33;padding:0;
+  border:calc(var(--u)*1) solid rgba(255,255,255,.7);box-shadow:0 0 0 0 rgba(255,255,255,.4);
+  animation:hipulse 2.5s cubic-bezier(.4,0,.6,1) infinite;transition:opacity .5s;}
+.hi-cercle:hover{border-color:#fff;}
+@keyframes hipulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.5);}
+  70%{box-shadow:0 0 0 calc(var(--u)*14) rgba(255,255,255,0);}100%{box-shadow:0 0 0 0 rgba(255,255,255,0);}}
+.diptique-droite.revele .hi-cercle{opacity:0;pointer-events:none;animation:none;}
+/* la photo vire au négatif chaud pendant la révélation */
+.diptique-droite img.fond{transition:filter .25s ease;}
+.diptique-droite.revele img.fond{filter:grayscale(1) brightness(1.4);}
+/* calque texte = l'image révélée, balayage haut→bas (tirage argentique) */
+.hi-revele{position:absolute;inset:0;z-index:34;opacity:0;pointer-events:none;transition:opacity .3s;}
+.diptique-droite.revele .hi-revele{opacity:1;pointer-events:auto;cursor:pointer;}
+.hi-papier{position:absolute;inset:0;overflow:auto;background-color:#f5f0e6;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  clip-path:inset(0 0 100% 0);transition:clip-path 1s cubic-bezier(.25,.1,.1,1);}
+.diptique-droite.revele .hi-papier{clip-path:inset(0 0 0 0);}
+.hi-corps{padding:calc(var(--u)*24) calc(var(--u)*22) calc(var(--u)*30);color:#1a1a1a;
+  font-family:Georgia,'Times New Roman',serif;font-size:calc(var(--u)*4.3);line-height:1.65;text-align:justify;hyphens:auto;}
+.hi-corps p{margin:0 0 calc(var(--u)*5.5);}
+.hi-corps p:first-child::first-letter{font-size:calc(var(--u)*16);float:left;line-height:.82;padding:calc(var(--u)*1.5) calc(var(--u)*2) 0 0;font-weight:600;}
+.hi-credit{font-style:italic;font-size:calc(var(--u)*3.7);text-align:right;opacity:0;margin-top:calc(var(--u)*7);
+  transition:opacity .6s ease .4s;}
+.diptique-droite.revele .hi-credit{opacity:.72;}
 
 /* photos de couverture (apparition au démarrage du son) */
 .cv-photo{position:fixed;top:50%;z-index:44;width:min(240px, 17vw);
@@ -440,6 +469,20 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 <section class="page diptique-droite" aria-label="Page 14" data-folio="14">
   <picture><source srcset="assets/images/img-6.webp" type="image/webp"><img class="fond" loading="lazy" decoding="async" src="assets/images/img-6.jpg" alt=""></picture>
 <div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span>PAGE 14</span></div><div class="credit"></div>
+<button type="button" class="hi-cercle" id="hi-cercle" aria-label="Révéler le texte de Hart’s Island"></button>
+<div class="hi-revele" id="hi-revele" aria-hidden="true">
+  <div class="hi-papier">
+    <div class="hi-corps">
+      <p>Et brusquement, par un bel après-midi, ce fut l’explosion. Sur le papier, ça n’aura peut-être pas l’air de grand-chose, d’ailleurs. Nous marchions tous ensemble en jouant ce vieil air pompier&nbsp;: Notre directeur et le professeur s’était arrêté pour parler au gardien tandis que nous poursuivions notre marche à travers l’île. Nous passons devant la centrale électrique, où travaillait la 9<sup>e</sup> Division, entièrement composée de Noirs, et tous accourent comme d’habitude, pour nous écouter.</p>
+      <p>À la seule idée qu’on paradait tout l’après-midi pendant que ces gars-là se crevaient le cul, je me faisais l’effet d’un minable, d’un fils à papa, d’une lavette, et il fallait que je me justifie d’une manière ou d’une autre, alors je m’appliquais à mettre dans mes mouvements le plus possible de rythme et de souplesse, sans avoir l’air maniéré ni prétentieux.</p>
+      <p>Nous défilons donc, et voilà qu’au tempo frénétique de la marche, je me sens devenir léger, aérien, et quand nous arrivons près de la centrale, en vue de tous les copains, je me dis, tant pis, je brise mes chaînes et je me lance à fond. J’étais tendu, surexcité, comme si que je m’apprêtais à cambrioler une banque. J’oublie complètement la partition du professeur et je me mets à improviser. Et alors, bon Dieu, me voilà parti comme en rêve, dans une espèce d’état second, où il me semblait que mon corps libéré évoluait tout seul, où mes doigts volaient sur les touches sans le moindre effort de ma part, comme si quelqu’un avait pris ma place et commandé à tous mes muscles et que je n’aie eu qu’à suivre et me laisser aller, certain que tout était pour le mieux. J’éprouvais cette sorte d’exaltation sereine, insensée, dont parlent les croyants et qui les fait prendre pour des cinglés. Et c’était exactement, à un iota près, la même exaltation sereine que celle que j’éprouvais enfant, en entendant la musique de La Nouvelle-Orléans, cette musique qui m’a hanté toute ma vie et que j’avais, jusque-là, cherché en vain à trouver.</p>
+      <p>C’est que, voyez-vous, pour la toute première fois de ma vie, j’étais complètement dans le bain, je jouais le vrai jazz authentique, et c’était ça, pas Chicago, ni Dixieland, pas le swing ni le jump, pas Debussy ni Ravel, mais le jazz, primitif, simple, direct, trépidant et envoûtant. Toute ma vie, j’avais ardemment désiré jouer ainsi et toute ma vie j’avais tellement eu peur de ne pas y arriver (même lors des enregistrements Panassié), que je m’étais dérobé, que j’avais toujours pris des chemins détournés afin de ne pas avoir à affronter l’obstacle et risquer de manquer mon coup, et tous mes malheurs, mes complexes, mes ratages et mes écarts, étaient venus de cette crainte et de ces dérobades. Maintenant, je n’avais plus peur. Toutes mes aventures passées prenaient subitement un sens, s’inscriraient à leur place dans le tableau&nbsp;: la prison, l’éternel refrain du claque-dents, la plongée dans le néant de l’opium, les nerfs malades, les évasions à la marihuana, la vie des bas-fonds. C’est tout cela qui avait constitué mon éducation, ma formation, jusqu’à ce que je sois suffisamment meurtri, maté, groggy, pour être à même de reconnaître et d’assimiler le langage de La Nouvelle-Orléans grâce auquel je pouvais m’exprimer. Ces vingt années de lutte et de coups durs m’avaient modelé les doigts au point que je pouvais maintenant chatouiller ma clarinette et en tirer le seul langage de l’univers qui me permettrait de dire ce que j’avais à dire.</p>
+      <p>Et savez-vous ce que j’avais à dire&nbsp;? Quelque chose de très simple&nbsp;: la vie est belle, il fait bon vivre&nbsp;! Qu’importent la faim, les coups de pied au cul et les coups de matraque sur la tête, qu’importe si la lutte est dure, il fait bon vivre, vieux frère&nbsp;! Il avait fallu que j’en rote, et vachement, avant de comprendre. Les Noirs, eux, tout frais dégagés de trois cents ans d’esclavage – toujours les parias méprisés de la nation en dépit de leur soi-disante émancipation – avaient compris depuis belle lurette, et quarante ou cinquante ans auparavant, ils avaient créé une musique révolutionnaire pour clamer ce message au monde. Voilà ce que le style Nouvelle-Orléans célébrait en réalité&nbsp;: le triomphe de tout ce qui vit, respire, joue des biceps, cligne de l’œil et se lèche les babines en dépit des saloperies du monde. C’était un défi aux pompes funèbres, un refus de se laisser abattre, une réaction obstinée, un cri de louange à l’appareil circulatoire, un hosanna aux glandes sudoripares, un hymne aux entrailles qui braillent quand elles sont vides. Alleluia&nbsp;! Le soleil luit&nbsp;! Gloire au pouls tout-puissant&nbsp;! On se laissera pas supprimer&nbsp;! On est là et on tient bon – on ne reconnaît pas vos arrêtés d’expulsion de cette bonne vieille terre. L’esprit est toujours en nous, et y a pas, faut que ça barde&nbsp;! On va expliquer tout ça avec notre belle musique… Je savais maintenant ce que j’avais à dire sur mon biniou&nbsp;; je possédais à fond mon vocabulaire Nouvelle-Orléans et la manière de m’en servir. Jimmy Noone, Johnny Dodds et Sidney Bechet l’avaient en eux depuis toujours, et à présent ils étaient dans ma peau et actionnaient mes doigts, pour que je sorte ce que j’avais à sortir.</p>
+      <p>Oui, c’est à cette seconde-là que j’ai sauté de la galère où je me débattais moralement pour trouver ma vraie voie et voir enfin fondre mon fardeau de misère.</p>
+      <p class="hi-credit">— Milton Mezzrow &amp; Bernard Wolfe, <em>La Rage de Vivre</em> (<em>Really the Blues</em>, 1946) · chap. «&nbsp;Hors de la galère&nbsp;», p.&nbsp;422–424</p>
+    </div>
+  </div>
+</div>
 </section>
 </div>
 
@@ -1353,6 +1396,19 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
       },{threshold:0.35});
       io.observe(p16);
     }
+  })();
+  (function(){            // page 14 : révélation argentique du texte (Hart's Island) — pas de son
+    var p14=document.querySelector('[data-folio="14"]');
+    var cercle=document.getElementById('hi-cercle'), texte=document.getElementById('hi-revele');
+    if(!p14||!cercle||!texte) return;
+    cercle.addEventListener('click',function(e){
+      e.stopPropagation();
+      p14.classList.add('revele'); texte.setAttribute('aria-hidden','false');
+      var papier=texte.querySelector('.hi-papier'); if(papier) papier.scrollTop=0;
+    });
+    texte.addEventListener('click',function(){
+      p14.classList.remove('revele'); texte.setAttribute('aria-hidden','true');
+    });
   })();
   buildMobileContent();  // cache contenu des encadrés mobiles (moteur géométrique, piloté par tick)
   setupP6Scroll();       // pin + station de lecture page 6 (desktop uniquement)
