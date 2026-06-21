@@ -153,6 +153,30 @@ img.abs{display:block;}
   font-size:calc(var(--u2)*4.4);font-weight:900;letter-spacing:.05em;opacity:.65;}
 @media(max-width:760px){ .hi-corps{column-count:1;font-size:calc(var(--u)*5);overflow:auto;width:92%;} }
 
+/* ── double page 17 : « L'absence » — révélation pilotée par le scroll (même animation que 13-14) ── */
+#dip-absence{position:relative;}
+#dip-absence img.fond{transition:filter 1.9s cubic-bezier(.4,0,.2,1), transform 1.9s cubic-bezier(.4,0,.2,1);}
+#dip-absence.revele img.fond{filter:brightness(.24) grayscale(.5) contrast(1.04);transform:scale(1.055);}
+.abs-revele{--u:calc(var(--pw)/595.276);position:absolute;inset:0;z-index:34;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(130% 130% at 50% 50%, rgba(6,6,6,.6), rgba(6,6,6,.88));
+  opacity:0;pointer-events:none;transition:opacity 1.9s ease;}
+#dip-absence.revele .abs-revele{opacity:1;}
+.abs-corps{--u2:calc(var(--pw)/420);box-sizing:border-box;width:93%;max-height:95%;overflow:hidden;
+  padding:calc(var(--u2)*6) calc(var(--u2)*13);color:var(--jaune);font-family:inherit;font-weight:900;
+  font-size:calc(var(--u2)*8.4);line-height:1.43;letter-spacing:.004em;text-align:justify;
+  column-count:3;column-gap:calc(var(--u2)*18);column-fill:balance;
+  text-shadow:0 0 calc(var(--u2)*3) rgba(0,0,0,.6);
+  opacity:0;filter:blur(calc(var(--u2)*3.2));transform:scale(1.032);
+  transition:opacity 1.9s ease, filter 1.9s ease, transform 1.9s cubic-bezier(.2,.6,.2,1);}
+#dip-absence.revele .abs-corps{opacity:1;filter:blur(0);transform:scale(1);}
+.abs-corps p{margin:0 0 calc(var(--u2)*3.2);}
+.abs-epigraphe{column-span:all;margin:0 0 calc(var(--u2)*5);padding:0;border:0;
+  font-style:italic;font-weight:700;opacity:.82;line-height:1.4;
+  font-size:calc(var(--u2)*6.8);}
+.abs-epigraphe .abs-sig{font-style:normal;opacity:.7;white-space:nowrap;}
+@media(max-width:760px){ .abs-corps{column-count:1;font-size:calc(var(--u)*4.6);overflow:auto;width:94%;} }
+
 /* photos de couverture (apparition au démarrage du son) */
 .cv-photo{position:fixed;top:50%;z-index:44;width:min(240px, 17vw);
   opacity:0;visibility:hidden;pointer-events:none;
@@ -505,10 +529,34 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 </figure>
 </section>
 
-<section class="page" aria-label="Page 17" data-folio="17">
-  <picture><source srcset="assets/images/img-13.webp" type="image/webp"><img class="fond" loading="lazy" decoding="async" src="assets/images/img-13.jpg" alt=""></picture>
-<div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span>PAGE 17</span></div><div class="credit">Glenn Ligon</div>
+<div class="diptique-pano" id="dip-absence">
+<section class="page" aria-label="Page 17" data-folio="17" data-son="EMB:BBBSOLO" data-piste="Bye Bye Blackbird (solo de John Coltrane) — Miles Davis Quintet · Olympia, Paris, 1960">
+  <picture><source srcset="assets/images/absence-l.webp" type="image/webp"><img class="fond" loading="lazy" decoding="async" src="assets/images/absence-l.jpg" alt=""></picture>
+<div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span>PAGE 17</span></div><div class="credit"></div>
 </section>
+<section class="page diptique-droite" aria-label="Page 17 (suite)" data-folio="17b">
+  <picture><source srcset="assets/images/absence-r.webp" type="image/webp"><img class="fond" loading="lazy" decoding="async" src="assets/images/absence-r.jpg" alt=""></picture>
+<div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span></span></div><div class="credit"></div>
+</section>
+<div class="abs-revele" id="abs-revele" aria-hidden="true">
+  <div class="abs-corps">
+      <blockquote class="abs-epigraphe">«&nbsp;C’est effrayant ce qu’on en a des choses et des gens qui ne bougent plus dans son passé. Les vivants qu’on égare dans les cryptes du temps dorment si bien avec les morts qu’une même ombre les confond déjà. On ne sait plus qui réveiller en vieillissant, les vivants ou les morts.&nbsp;» <span class="abs-sig">— L.-F. Céline</span></blockquote>
+      <p>Mon histoire avec le jazz commence par un frère qui part. Quinze ans de plus que moi, saxophoniste&nbsp;; je suis à peine adolescent quand il s’installe au Canada. Pas une rupture — une disparition polie du lien, un divorce sourd. Ce qu’il jouait est resté de ce côté de l’Atlantique, dans l’espace qu’il avait vidé, et j’ai appris à écouter cette musique comme on écoute quelqu’un qui n’est plus là.</p>
+      <p>Je ne comprendrai jamais vraiment son départ. C’est resté une zone que ni la rancune ni l’explication n’ont réussi à combler. Et c’est précisément là, dans ce point aveugle, que je crois avoir appris quelque chose qui décide de tout le reste&nbsp;: qu’on peut aimer sans comprendre. Que l’amour ne demande pas l’autorisation de la compréhension. Baldwin tient ces deux choses ensemble tout le temps — aimer ce dont on est exclu, ce qui vous échappe, ce qui ne se laisse pas posséder de l’intérieur. C’était exactement le geste que je faisais, enfant, avec la musique de mon frère, sans le savoir. Et c’est, déplacé, le geste de Mezz&nbsp;: aimer une culture qu’il ne comprendra jamais du dedans, et l’aimer quand même, à en perdre la mesure.</p>
+      <p>Ce que je partage avec lui n’est donc pas la musique. C’est la structure&nbsp;: une chose aimée <em>parce qu’</em>il y a un manque derrière, habitée plutôt que possédée.</p>
+      <p>Il y a une autre absence, et celle-là je dois la raconter — sinon tout perd sa force, et le reste n’est que de la pensée.</p>
+      <p>Pendant ma formation, Camille, une collègue de promotion, est morte devant moi, dans la rue. Un arrêt cardiaque. J’ai couru chercher le défibrillateur&nbsp;; il ne fonctionnait pas&nbsp;; j’ai essayé quand même. Elle gisait sur le béton, au milieu de la métropole qui l’engloutissait. Ça n’a pas marché.</p>
+      <p>Ce qui ne passe pas, ce n’est pas seulement qu’elle soit morte. C’est la disgrâce épouvantable du moment&nbsp;: ce béton, cette rue, l’absence totale de forme et de relais autour d’une mort pareille — rien, aucun rite, rien qui la rachète à mes yeux. J’ai eu d’autres pertes depuis. Celle-là, la première, ne passe pas et ne passera jamais. La colère contre cette mort, contre toutes les morts, absurdes et inexplicables. Parce que c’est absurde et inexplicable, alors la colère.</p>
+      <p>En essayant de la sauver, j’ai momentanément perdu tout contact avec mes émotions. Je me suis vu devenir un corps froid et dur, implacable, tendu vers une seule chose&nbsp;: la ramener. J’entendais des cris monter au fond de moi, et je les ravalais pour rester lucide. Cet état m’a laissé des marques des mois durant. Dans la rue, les sons trop forts déclenchaient des sensations de danger imminent. J’ai rompu le dialogue avec mes proches, je me suis enfermé chez moi, dans le silence&nbsp;; je me suis mis à chercher le conflit, à me battre dans des situations inexplicables, pour calmer quelque chose qui ne se calmait pas. J’ai vu un psychiatre. On m’a traité, chimiquement, pour un choc post-traumatique — le même qu’on donne à ceux qui reviennent du front.</p>
+      <p>Longtemps, on m’a félicité d’avoir eu «&nbsp;le courage&nbsp;» d’agir quand tout le monde faiblissait. Et j’ai cru à cette image&nbsp;: l’homme qui peut encore agir, le soldat, celui qui tait son émotion pour sauver l’autre. Sauf que je ne l’avais pas sauvée. Et pendant des années, des rêves sont revenus me hanter — j’y tuais de sang-froid des inconnus, et je détruisais dans un self-control glacial, l’exact contraire du sauveur que je croyais avoir été. Un jour j’ai compris&nbsp;: taire son émotion dans les moments les plus extrêmes de la vie et appeler ça du courage, c’est très précisément la manière dont on fabrique des tueurs. J’ai repassé le fil, et j’ai vu avec stupeur que sur le moment, dans ce quart d’heure, j’avais éprouvé un sentiment d’impunité, d’invulnérabilité inouïe. La possibilité de tuer et la tentative absolue de sauver avaient cohabité en moi le temps d’un même geste. La violence que je me suis infligée par réflexe pour la sauver avait fait de moi, dans le même instant, son sauveur impossible et un probable assassin.</p>
+      <p>Je ne m’expliquerai jamais ce moment. Je n’en serai pas consolé. Et la seule chose qui ait jamais réussi à <em>cohabiter</em> avec ça — pas à le réparer, à l’habiter — c’est le jazz. Quand j’ai voulu écrire cet instant, dix ans après, c’est la forme des solos de Coltrane qui est venue&nbsp;: ces cris incidentels, déchirés, ce hurlement maîtrisé qui monte et se brise — exactement les cris que je m’étais forcé à ravaler sur le béton. Le freejazz, le cri du saxophone, cette musique qui porte en elle, dans le même souffle, la liberté et la violence — sauver et violenter d’un seul geste&nbsp;: c’était la seule langue capable de dire ce que je ne pouvais pas crier. Je n’ai pas choisi le jazz, lui aussi s’est imposé.</p>
+      <p>Et c’est là que la question me rattrape, jusque dans l’endroit le plus seul de ma vie. Même pour dire cette mort-là — la mienne, celle dont je ne peux déléguer le deuil à personne — j’empruntais une langue qui n’était pas la mienne. Le cri que mon corps avait refoulé pour rester un sauveur, je l’ai fait passer, des années plus tard, par le souffle d’un saxophoniste noir américain. Mon deuil le plus intime, le plus nu, était déjà tout entier fait d’emprunts — d’absences habitées par des formes prises ailleurs.</p>
+      <p>C’est cette même structure que je retrouve, déplacée et immense, en rouvrant <em>La Rage de vivre</em>. Au sommet du livre, à Hart’s Island, les musiciens dont Mezz parle depuis quatre cents pages ne sont pas là. Bechet, Noone, Dodds n’existent dans la scène qu’à travers son corps, qui prétend les incarner. Les ouvriers noirs qui l’entourent n’ont pas de nom&nbsp;: ils sont le décor de sa révélation à lui. Le livre est plein de gens qui ne sont présents que par le manque qu’ils laissent dans celui qui les regarde.</p>
+      <p>Sur un plateau, cette structure se redouble. Un acteur blanc, seul, porte le récit d’un homme blanc qui voulait être noir, devant des musiciens noirs qui n’y sont pas — qui n’ont jamais eu les moyens institutionnels d’y être, dans ce genre de récit. De 1942 à aujourd’hui, la même répétition&nbsp;: quelqu’un regarde quelqu’un qui ne lui appartient pas, et un public reçoit ça comme de l’art, comme une transmission, comme quelque chose de beau. Et c’est beau. Et c’est suspect. Simultanément, irréductiblement.</p>
+      <p>Le sujet du spectacle, c’est cet écart — entre la beauté réelle et la suspicion légitime — qui ne se referme jamais, et ne doit pas se refermer. Le refermer serait mentir&nbsp;: prétendre que tout est permis au nom de la sincérité, ou que rien n’est possible au nom de la pureté. Mes absences à moi — le frère, Camille — ne sont pas un ornement intime à côté de cette question. C’est par elles que je sais, dans le corps et pas seulement dans la pensée, ce que veut dire aimer quelqu’un qui n’est pas là. C’est ce que je peux légitimement apporter à une histoire qui, par ailleurs, ne m’appartient pas. Et c’est cette absence-là, sous toutes ses formes, que le spectacle cherche à rendre sonore et théâtrale.</p>
+    </div>
+</div>
+</div>
 
 <section class="page" aria-label="Page 18" data-folio="18">
   <picture><source srcset="assets/images/img-14.webp" type="image/webp"><img class="abs" loading="lazy" decoding="async" style="left:0;top:0;width:100%;height:calc(var(--u)*430.9);object-fit:fill" src="assets/images/img-14.jpg" alt=""></picture>
@@ -630,8 +678,9 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
       DAY="assets/audio/daybreak-express-1933.mp3", WHAT="assets/audio/what-is-this-thing-called-love-1941.mp3",
       HOT="assets/audio/hot-house-1948.mp3", BOO="assets/audio/boogie-stop-shuffle-1959.mp3",
       BBB="assets/audio/bye-bye-blackbird-1960.mp3", ALLB="assets/audio/all-blues-1959.mp3",
-      DRM="assets/audio/darn-that-dream-monk.mp3", REINC="assets/audio/reincarnation-of-a-lovebird-1957.mp3";
-  var SRC={ "EMB:RTB":RTB, "EMB:FRIS":FRIS, "EMB:MOOD":MOOD, "EMB:STL":STL, "EMB:DAY":DAY, "EMB:WHAT":WHAT, "EMB:HOT":HOT, "EMB:BOO":BOO, "EMB:BBB":BBB, "EMB:ALLB":ALLB, "EMB:DRM":DRM, "EMB:REINC":REINC };
+      DRM="assets/audio/darn-that-dream-monk.mp3", REINC="assets/audio/reincarnation-of-a-lovebird-1957.mp3",
+      BBBSOLO="assets/audio/bye-bye-blackbird-coltrane-1960.mp3";
+  var SRC={ "EMB:RTB":RTB, "EMB:FRIS":FRIS, "EMB:MOOD":MOOD, "EMB:STL":STL, "EMB:DAY":DAY, "EMB:WHAT":WHAT, "EMB:HOT":HOT, "EMB:BOO":BOO, "EMB:BBB":BBB, "EMB:ALLB":ALLB, "EMB:DRM":DRM, "EMB:REINC":REINC, "EMB:BBBSOLO":BBBSOLO };
 
   var bouton=document.getElementById('son');
   var creditAudio=document.getElementById('credit-audio');
@@ -639,7 +688,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
   var pages=Array.prototype.slice.call(document.querySelectorAll('.page'));
   var actif=true, ctx=null, debloque=false, courante=-1, pisteActuelle="", gesteActif=false;
   var VOL=0.72;
-  var VOL_PISTES={"EMB:RTB":0.72,"EMB:FRIS":0.65,"EMB:MOOD":0.62,"EMB:STL":0.78,"EMB:DAY":0.84,"EMB:WHAT":0.56,"EMB:HOT":0.82,"EMB:BOO":0.6,"EMB:BBB":0.82,"EMB:ALLB":0.78,"EMB:DRM":0.7,"EMB:REINC":0.7};
+  var VOL_PISTES={"EMB:RTB":0.72,"EMB:FRIS":0.65,"EMB:MOOD":0.62,"EMB:STL":0.78,"EMB:DAY":0.84,"EMB:WHAT":0.56,"EMB:HOT":0.82,"EMB:BOO":0.6,"EMB:BBB":0.82,"EMB:ALLB":0.78,"EMB:DRM":0.7,"EMB:REINC":0.7,"EMB:BBBSOLO":0.82};
 
   /* ════════ AUDIO ════════ */
   var pistes={};   // src -> {audio, ok, noise, gain, cible, raf}
@@ -1419,6 +1468,18 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
     texte.addEventListener('click',function(){
       dip.classList.remove('revele'); texte.setAttribute('aria-hidden','true');
     });
+  })();
+  (function(){            // double page 17 « L'absence » : révélation pilotée par le SCROLL (même animation que 13-14)
+    var dip=document.getElementById('dip-absence'), texte=document.getElementById('abs-revele');
+    if(!dip||!texte||!('IntersectionObserver' in window)) return;
+    var io=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var on=e.isIntersecting && e.intersectionRatio>=0.6;   // double page ~centrée à l'écran
+        dip.classList.toggle('revele', on);
+        texte.setAttribute('aria-hidden', on?'false':'true');
+      });
+    },{threshold:[0,0.6,1]});
+    io.observe(dip);
   })();
   buildMobileContent();  // cache contenu des encadrés mobiles (moteur géométrique, piloté par tick)
   setupP6Scroll();       // pin + station de lecture page 6 (desktop uniquement)
