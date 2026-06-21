@@ -112,6 +112,17 @@ img.abs{display:block;}
   padding:0 calc(var(--u)*0.8);}
 .lien-switch-note{display:inline-block;margin-left:calc(var(--u)*1.4);color:var(--jaune);
   opacity:.72;font-style:italic;font-size:.86em;white-space:nowrap;}
+/* bouton « Louis Armstrong » centré sur l'image (page 8 / 1920) — un seul choix */
+.armstrong-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:30;
+  background:rgba(14,14,14,.42);color:var(--jaune);font:inherit;font-weight:900;cursor:pointer;
+  border:calc(var(--u)*0.9) solid var(--jaune);border-radius:999px;
+  padding:calc(var(--u)*4) calc(var(--u)*9);font-size:calc(var(--u)*6.4);letter-spacing:.05em;
+  text-transform:uppercase;backdrop-filter:blur(2px);box-shadow:0 0 0 0 rgba(239,213,26,.5);
+  animation:armpulse 2.6s cubic-bezier(.4,0,.6,1) infinite;transition:opacity .5s,transform .5s;}
+.armstrong-btn:hover{background:rgba(14,14,14,.62);}
+@keyframes armpulse{0%{box-shadow:0 0 0 0 rgba(239,213,26,.45);}
+  70%{box-shadow:0 0 0 calc(var(--u)*16) rgba(239,213,26,0);}100%{box-shadow:0 0 0 0 rgba(239,213,26,0);}}
+.armstrong-btn.joue{opacity:0;pointer-events:none;animation:none;transform:translate(-50%,-50%) scale(.9);}
 
 /* page 16 — cercle élégant autour du visage du Pierrot → déclenche la pochette + le son */
 .p16-cercle{position:absolute;left:39.5%;top:14.5%;width:calc(var(--u)*80);height:calc(var(--u)*106);
@@ -133,7 +144,7 @@ img.abs{display:block;}
 /* ── double page 13-14 : révélation du texte de Hart's Island (typo du dossier) ── */
 #dip-1314{position:relative;}
 /* cercle jaune pulsant qui auréole le visage du jeune homme (page 14) — rond, taille doublée */
-.hi-cercle{position:absolute;left:69%;top:48%;width:calc(var(--u)*104);height:calc(var(--u)*104);
+.hi-cercle{position:absolute;left:69%;top:48%;width:calc(var(--u)*165);height:calc(var(--u)*165);
   transform:translate(-50%,-50%);border-radius:50%;background:transparent;cursor:pointer;z-index:35;padding:0;
   border:calc(var(--u)*1.4) solid rgba(239,213,26,.78);box-shadow:0 0 0 0 rgba(239,213,26,.4);
   animation:hipulse 2.5s cubic-bezier(.4,0,.6,1) infinite;transition:opacity .6s;}
@@ -186,7 +197,15 @@ img.abs{display:block;}
   font-style:italic;font-weight:700;opacity:.82;line-height:1.4;
   font-size:calc(var(--u2)*6.8);}
 .abs-epigraphe .abs-sig{font-style:normal;opacity:.7;white-space:nowrap;}
-@media(max-width:760px){ .abs-corps{column-count:1;font-size:calc(var(--u)*4.6);overflow:auto;width:94%;} }
+/* double page Absence — état provisoire : seule la citation Céline, centrée en haut, plus grosse */
+.abs-corps.epi-seule{column-count:1;align-self:flex-start;width:80%;max-height:none;overflow:visible;
+  margin-top:calc(var(--u2)*34);text-align:center;}
+.abs-corps.epi-seule p{display:none;}
+.abs-corps.epi-seule .abs-epigraphe{column-span:none;margin:0;text-align:center;
+  font-size:calc(var(--u2)*9.4);line-height:1.42;opacity:.92;}
+.abs-corps.epi-seule .abs-sig{display:inline-block;margin-top:calc(var(--u2)*6);opacity:.7;}
+@media(max-width:760px){ .abs-corps{column-count:1;font-size:calc(var(--u)*4.6);overflow:auto;width:94%;}
+  .abs-corps.epi-seule .abs-epigraphe{font-size:calc(var(--u)*6);} }
 
 /* photos de couverture (apparition au démarrage du son) */
 .cv-photo{position:fixed;top:50%;z-index:44;width:min(240px, 17vw);
@@ -459,12 +478,12 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 </section>
 <div class="hi-revele" id="hi-revele" aria-hidden="true">
   <div class="hi-corps">
-      <p>Et brusquement, par un bel après-midi, ce fut l’explosion. Sur le papier, ça n’aura peut-être pas l’air de grand-chose, d’ailleurs. Nous marchions tous ensemble en jouant ce vieil air pompier&nbsp;: Notre directeur et le professeur s’était arrêté pour parler au gardien tandis que nous poursuivions notre marche à travers l’île. Nous passons devant la centrale électrique, où travaillait la 9<sup>e</sup> Division, entièrement composée de Noirs, et tous accourent comme d’habitude, pour nous écouter.</p>
+      <p>«&nbsp;Et brusquement, par un bel après-midi, ce fut l’explosion. Sur le papier, ça n’aura peut-être pas l’air de grand-chose, d’ailleurs. Nous marchions tous ensemble en jouant ce vieil air pompier&nbsp;: Notre directeur et le professeur s’était arrêté pour parler au gardien tandis que nous poursuivions notre marche à travers l’île. Nous passons devant la centrale électrique, où travaillait la 9<sup>e</sup> Division, entièrement composée de Noirs, et tous accourent comme d’habitude, pour nous écouter.</p>
       <p>À la seule idée qu’on paradait tout l’après-midi pendant que ces gars-là se crevaient le cul, je me faisais l’effet d’un minable, d’un fils à papa, d’une lavette, et il fallait que je me justifie d’une manière ou d’une autre, alors je m’appliquais à mettre dans mes mouvements le plus possible de rythme et de souplesse, sans avoir l’air maniéré ni prétentieux.</p>
       <p>Nous défilons donc, et voilà qu’au tempo frénétique de la marche, je me sens devenir léger, aérien, et quand nous arrivons près de la centrale, en vue de tous les copains, je me dis, tant pis, je brise mes chaînes et je me lance à fond. J’étais tendu, surexcité, comme si que je m’apprêtais à cambrioler une banque. J’oublie complètement la partition du professeur et je me mets à improviser. Et alors, bon Dieu, me voilà parti comme en rêve, dans une espèce d’état second, où il me semblait que mon corps libéré évoluait tout seul, où mes doigts volaient sur les touches sans le moindre effort de ma part, comme si quelqu’un avait pris ma place et commandé à tous mes muscles et que je n’aie eu qu’à suivre et me laisser aller, certain que tout était pour le mieux. J’éprouvais cette sorte d’exaltation sereine, insensée, dont parlent les croyants et qui les fait prendre pour des cinglés. Et c’était exactement, à un iota près, la même exaltation sereine que celle que j’éprouvais enfant, en entendant la musique de La Nouvelle-Orléans, cette musique qui m’a hanté toute ma vie et que j’avais, jusque-là, cherché en vain à trouver.</p>
       <p>C’est que, voyez-vous, pour la toute première fois de ma vie, j’étais complètement dans le bain, je jouais le vrai jazz authentique, et c’était ça, pas Chicago, ni Dixieland, pas le swing ni le jump, pas Debussy ni Ravel, mais le jazz, primitif, simple, direct, trépidant et envoûtant. Toute ma vie, j’avais ardemment désiré jouer ainsi et toute ma vie j’avais tellement eu peur de ne pas y arriver (même lors des enregistrements Panassié), que je m’étais dérobé, que j’avais toujours pris des chemins détournés afin de ne pas avoir à affronter l’obstacle et risquer de manquer mon coup, et tous mes malheurs, mes complexes, mes ratages et mes écarts, étaient venus de cette crainte et de ces dérobades. Maintenant, je n’avais plus peur. Toutes mes aventures passées prenaient subitement un sens, s’inscriraient à leur place dans le tableau&nbsp;: la prison, l’éternel refrain du claque-dents, la plongée dans le néant de l’opium, les nerfs malades, les évasions à la marihuana, la vie des bas-fonds. C’est tout cela qui avait constitué mon éducation, ma formation, jusqu’à ce que je sois suffisamment meurtri, maté, groggy, pour être à même de reconnaître et d’assimiler le langage de La Nouvelle-Orléans grâce auquel je pouvais m’exprimer. Ces vingt années de lutte et de coups durs m’avaient modelé les doigts au point que je pouvais maintenant chatouiller ma clarinette et en tirer le seul langage de l’univers qui me permettrait de dire ce que j’avais à dire.</p>
       <p>Et savez-vous ce que j’avais à dire&nbsp;? Quelque chose de très simple&nbsp;: la vie est belle, il fait bon vivre&nbsp;! Qu’importent la faim, les coups de pied au cul et les coups de matraque sur la tête, qu’importe si la lutte est dure, il fait bon vivre, vieux frère&nbsp;! Il avait fallu que j’en rote, et vachement, avant de comprendre. Les Noirs, eux, tout frais dégagés de trois cents ans d’esclavage – toujours les parias méprisés de la nation en dépit de leur soi-disante émancipation – avaient compris depuis belle lurette, et quarante ou cinquante ans auparavant, ils avaient créé une musique révolutionnaire pour clamer ce message au monde. Voilà ce que le style Nouvelle-Orléans célébrait en réalité&nbsp;: le triomphe de tout ce qui vit, respire, joue des biceps, cligne de l’œil et se lèche les babines en dépit des saloperies du monde. C’était un défi aux pompes funèbres, un refus de se laisser abattre, une réaction obstinée, un cri de louange à l’appareil circulatoire, un hosanna aux glandes sudoripares, un hymne aux entrailles qui braillent quand elles sont vides. Alleluia&nbsp;! Le soleil luit&nbsp;! Gloire au pouls tout-puissant&nbsp;! On se laissera pas supprimer&nbsp;! On est là et on tient bon – on ne reconnaît pas vos arrêtés d’expulsion de cette bonne vieille terre. L’esprit est toujours en nous, et y a pas, faut que ça barde&nbsp;! On va expliquer tout ça avec notre belle musique… Je savais maintenant ce que j’avais à dire sur mon biniou&nbsp;; je possédais à fond mon vocabulaire Nouvelle-Orléans et la manière de m’en servir. Jimmy Noone, Johnny Dodds et Sidney Bechet l’avaient en eux depuis toujours, et à présent ils étaient dans ma peau et actionnaient mes doigts, pour que je sorte ce que j’avais à sortir.</p>
-      <p>Oui, c’est à cette seconde-là que j’ai sauté de la galère où je me débattais moralement pour trouver ma vraie voie et voir enfin fondre mon fardeau de misère.</p>
+      <p>Oui, c’est à cette seconde-là que j’ai sauté de la galère où je me débattais moralement pour trouver ma vraie voie et voir enfin fondre mon fardeau de misère.&nbsp;»</p>
       <p class="hi-credit">— Milton Mezzrow &amp; Bernard Wolfe, <em>La Rage de Vivre</em> (<em>Really the Blues</em>, 1946) · chap. «&nbsp;Hors de la galère&nbsp;», p.&nbsp;422–424</p>
     </div>
 </div>
@@ -496,6 +515,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 <section class="page" aria-label="Page 7" data-folio="7" data-son="EMB:STL" data-piste="East St. Louis Toodle-Oo — Duke Ellington, 1926" data-panneau-page="src-p7" data-cote="d">
   <picture><source srcset="assets/images/img-4.webp" type="image/webp"><img class="fond" loading="lazy" decoding="async" src="assets/images/img-4.jpg" alt=""></picture>
 <div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span>PAGE 8</span></div><div class="credit"></div>
+<button type="button" class="armstrong-btn" id="armstrong-btn" aria-label="Écouter Jeepers Creepers — Louis Armstrong">Louis Armstrong</button>
 </section>
 
 <section class="page" aria-label="Page 8" data-folio="8" data-son="EMB:DAY" data-piste="Daybreak Express — Duke Ellington, 1933" data-panneau-page="src-p8" data-cote="g">
@@ -520,7 +540,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 <div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span>PAGE 12</span></div><div class="credit">photo · Saul Leiter</div>
 </section>
 
-<section class="page" aria-label="Page 12" data-folio="12" data-son="EMB:DRM" data-piste="Darn That Dream — Thelonious Monk" data-panneau-page="src-p12" data-cote="g">
+<section class="page" aria-label="Page 12" data-folio="12" data-son="EMB:DRM" data-piste="Darn That Dream — Thelonious Monk · June 1965" data-panneau-page="src-p12" data-cote="g">
   <picture><source srcset="assets/images/img-7.webp" type="image/webp"><img class="fond" loading="lazy" decoding="async" src="assets/images/img-7.jpg" alt=""></picture>
 <div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span>PAGE 13</span></div><div class="credit">photo · Saul Leiter</div>
 </section>
@@ -550,7 +570,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 <div class="entete" style="top:calc(var(--u)*11.3)"><span>LA RAGE DE VIVRE</span><span></span></div><div class="credit"></div>
 </section>
 <div class="abs-revele" id="abs-revele" aria-hidden="true">
-  <div class="abs-corps">
+  <div class="abs-corps epi-seule">
       <blockquote class="abs-epigraphe">«&nbsp;C’est effrayant ce qu’on en a des choses et des gens qui ne bougent plus dans son passé. Les vivants qu’on égare dans les cryptes du temps dorment si bien avec les morts qu’une même ombre les confond déjà. On ne sait plus qui réveiller en vieillissant, les vivants ou les morts.&nbsp;» <span class="abs-sig">— L.-F. Céline</span></blockquote>
       <p>Mon histoire avec le jazz commence par un frère qui part. Quinze ans de plus que moi, saxophoniste&nbsp;; je suis à peine adolescent quand il s’installe au Canada. Pas une rupture — une disparition polie du lien, un divorce sourd. Ce qu’il jouait est resté de ce côté de l’Atlantique, dans l’espace qu’il avait vidé, et j’ai appris à écouter cette musique comme on écoute quelqu’un qui n’est plus là.</p>
       <p>Je ne comprendrai jamais vraiment son départ. C’est resté une zone que ni la rancune ni l’explication n’ont réussi à combler. Et c’est précisément là, dans ce point aveugle, que je crois avoir appris quelque chose qui décide de tout le reste&nbsp;: qu’on peut aimer sans comprendre. Que l’amour ne demande pas l’autorisation de la compréhension. Baldwin tient ces deux choses ensemble tout le temps — aimer ce dont on est exclu, ce qui vous échappe, ce qui ne se laisse pas posséder de l’intérieur. C’était exactement le geste que je faisais, enfant, avec la musique de mon frère, sans le savoir. Et c’est, déplacé, le geste de Mezz&nbsp;: aimer une culture qu’il ne comprendra jamais du dedans, et l’aimer quand même, à en perdre la mesure.</p>
@@ -612,7 +632,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
 <div class="panneau-source" id="src-p9" data-titre="1940" hidden>
 <p>En 1940, il est arrêté à l’entrée d’un club avec une soixantaine de joints sur lui. En prison, il exige d’être traité comme un Noir et obtient son transfert dans la section noire — c’est de là que sortira la scène centrale du livre, celle de la parade.</p>
 <p>Il a épousé Johnnie Mae, une femme noire&nbsp;; il vit à Harlem&nbsp;; il s’est déclaré «&nbsp;voluntary negro&nbsp;» sur sa carte de conscription. Il ne joue pas à être noir&nbsp;: il est convaincu d’avoir «&nbsp;traversé la ligne&nbsp;» pour de bon.</p>
-<p>Et au moment précis où il s’enfonce ainsi dans le passé du jazz, à quelques rues de là, sans lui, le jazz invente déjà son avenir. Dans les jam sessions du Minton’s Playhouse, <span class="lien-switch">Dizzy Gillespie, Charlie Parker, Thelonious Monk élaborent le bebop</span><span class="lien-switch-note">♪ le bouton sur l’image bascule entre les deux versions</span>&nbsp;: tempos infernaux, grilles d’accords retournées, harmonie saturée au point qu’un intrus ne peut plus suivre. Une virtuosité conçue comme un mur — substitutions tritoniques, II-V-I démultipliés, changements de ton imprévisibles. Le but est explicite&nbsp;: décourager ceux qui viennent s’asseoir et récupérer le jazz sans en payer le prix. On ne fait plus danser, on revendique. La complexité devient une arme, une frontière, une manière de dire le coût, l’origine, l’adresse précise de la musique, une lutte contre l’appropriation des producteurs blancs. Le jazz est-il encore une musique de danse&nbsp;?</p>
+<p>Et au moment précis où il s’enfonce ainsi dans le passé du jazz, à quelques rues de là, sans lui, le jazz invente déjà son avenir. Dans les jam sessions du Minton’s Playhouse, <span class="lien-switch">Dizzy Gillespie, Charlie Parker, Thelonious Monk élaborent le bebop</span>&nbsp;: tempos infernaux, grilles d’accords retournées, harmonie saturée au point qu’un intrus ne peut plus suivre. Une virtuosité conçue comme un mur — substitutions tritoniques, II-V-I démultipliés, changements de ton imprévisibles. Le but est explicite&nbsp;: décourager ceux qui viennent s’asseoir et récupérer le jazz sans en payer le prix. On ne fait plus danser, on revendique. La complexité devient une arme, une frontière, une manière de dire le coût, l’origine, l’adresse précise de la musique, une lutte contre l’appropriation des producteurs blancs. Le jazz est-il encore une musique de danse&nbsp;?</p>
 <p><em>Really the Blues</em> paraît en 1946, co-écrit avec Bernard Wolfe — intellectuel juif, diplômé de Yale, ancien secrétaire de Trotsky au Mexique. La traduction française, <em>La Rage de vivre</em>, paraît en 1950 aux éditions Corrêa, préfacée par Henry Miller. Le livre tombe à la charnière exacte&nbsp;: Mezz écrit le monument du jazz des origines au moment même où cette musique-là est déjà dépassée, où le bebop a tout renversé. Et le livre se méfie de lui-même&nbsp;: Wolfe rédige en annexe un essai, «&nbsp;Ecstatic in Blackface&nbsp;», où il soutient que l’entertainer noir «&nbsp;authentique&nbsp;», fétichisé pour la pureté et la spontanéité de son expression, est en partie une projection du fan blanc. Ce que Mezz croit aimer dans la négritude est, pour partie, une image fabriquée par le regard blanc — et Mezz en est producteur autant que consommateur.</p>
 </div>
 <div class="panneau-source" id="src-p10" data-titre="1950" hidden>
@@ -691,16 +711,17 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
       BBB="assets/audio/bye-bye-blackbird-1960.mp3", ALLB="assets/audio/all-blues-1959.mp3",
       DRM="assets/audio/darn-that-dream-monk.mp3", REINC="assets/audio/reincarnation-of-a-lovebird-1957.mp3",
       BBBSOLO="assets/audio/bye-bye-blackbird-coltrane-1960.mp3",
-      MEZZ="assets/audio/mezz-mineur-avec-un-pont.mp3";
-  var SRC={ "EMB:RTB":RTB, "EMB:FRIS":FRIS, "EMB:MOOD":MOOD, "EMB:STL":STL, "EMB:DAY":DAY, "EMB:WHAT":WHAT, "EMB:HOT":HOT, "EMB:BOO":BOO, "EMB:BBB":BBB, "EMB:ALLB":ALLB, "EMB:DRM":DRM, "EMB:REINC":REINC, "EMB:BBBSOLO":BBBSOLO, "EMB:MEZZ":MEZZ };
+      MEZZ="assets/audio/mezz-mineur-avec-un-pont.mp3",
+      SLEEP="assets/audio/the-sleeper-coltrane.mp3", JEEP="assets/audio/jeepers-creepers-armstrong.mp3";
+  var SRC={ "EMB:RTB":RTB, "EMB:FRIS":FRIS, "EMB:MOOD":MOOD, "EMB:STL":STL, "EMB:DAY":DAY, "EMB:WHAT":WHAT, "EMB:HOT":HOT, "EMB:BOO":BOO, "EMB:BBB":BBB, "EMB:ALLB":ALLB, "EMB:DRM":DRM, "EMB:REINC":REINC, "EMB:BBBSOLO":BBBSOLO, "EMB:MEZZ":MEZZ, "EMB:SLEEP":SLEEP, "EMB:JEEP":JEEP };
 
   var bouton=document.getElementById('son');
   var creditAudio=document.getElementById('credit-audio');
   var slotA=creditAudio.querySelector('.slot');
   var pages=Array.prototype.slice.call(document.querySelectorAll('.page'));
   var actif=true, ctx=null, debloque=false, courante=-1, pisteActuelle="", gesteActif=false;
-  var VOL=0.72;
-  var VOL_PISTES={"EMB:RTB":0.72,"EMB:FRIS":0.65,"EMB:MOOD":0.62,"EMB:STL":0.78,"EMB:DAY":0.84,"EMB:WHAT":0.56,"EMB:HOT":0.82,"EMB:BOO":0.6,"EMB:BBB":0.82,"EMB:ALLB":0.78,"EMB:DRM":0.7,"EMB:REINC":0.7,"EMB:BBBSOLO":0.82,"EMB:MEZZ":0.8};
+  var VOL=0.85;
+  var VOL_PISTES={"EMB:RTB":0.85,"EMB:FRIS":0.8,"EMB:MOOD":0.78,"EMB:STL":0.9,"EMB:DAY":0.95,"EMB:WHAT":0.74,"EMB:HOT":0.94,"EMB:BOO":0.78,"EMB:BBB":0.94,"EMB:ALLB":0.9,"EMB:DRM":0.86,"EMB:REINC":0.96,"EMB:BBBSOLO":0.94,"EMB:MEZZ":0.92,"EMB:SLEEP":0.9,"EMB:JEEP":0.9};
 
   /* ════════ AUDIO ════════ */
   var pistes={};   // src -> {audio, ok, noise, gain, cible, raf}
@@ -890,7 +911,7 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
     var ordre=Object.keys(faces);          /* ['A','B'] ou ['A','B','C'] */
     var trio=ordre.length>=3;
     var courF=(opts.defaut && faces[opts.defaut])?opts.defaut:'A';
-    function piste(f){ return f.titre+' — '+f.artiste+(f.annee?(', '+f.annee):''); }
+    function piste(f){ return f.titre+' — '+f.artiste+(f.credit?(' · '+f.credit):(f.annee?(', '+f.annee):'')); }
     mount.classList.toggle('ab-switch--trio', trio);
     var html='<div class="ab-toggle" role="group" aria-label="Choix de version">';
     ordre.forEach(function(k,i){
@@ -1447,10 +1468,10 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
   (function(){            // switch Modal/Hard bop sur la page 10 (1950) — démarre sur le modal
     var p10=document.querySelector('[data-folio="10"]'), m10=document.getElementById('ab-p10');
     if(p10&&m10) creerSwitchAB({
-      page:p10, mount:m10, legende:'Deux sorties du bebop — et Mezz, resté en arrière', defaut:'A',
-      faceA:{key:'EMB:ALLB', lib:'Modal',    titre:'All Blues', artiste:'Miles Davis', annee:1959},
-      faceB:{key:'EMB:BOO',  lib:'Hard bop', titre:'Boogie Stop Shuffle', artiste:'Charles Mingus', annee:1959},
-      faceC:{key:'EMB:MEZZ', lib:'Mezz',     titre:'Mineur Avec Un Pont', artiste:'Mezz Mezzrow'}
+      page:p10, mount:m10, legende:'Deux sorties du bebop, et Mezzrow.', defaut:'A',
+      faceA:{key:'EMB:ALLB',  lib:'Modal',    titre:'All Blues', artiste:'Miles Davis', annee:1959},
+      faceB:{key:'EMB:SLEEP', lib:'Hard bop', titre:'The Sleeper', artiste:'Cannonball Adderley & John Coltrane', annee:1959},
+      faceC:{key:'EMB:MEZZ',  lib:'Mezz',     titre:'Mineur Avec Un Pont', artiste:'Mezz Mezzrow', credit:'Paris, France, May 20, 1955'}
     });
   })();
   (function(){            // page 16 : cercle sur le visage → pochette + Reincarnation (silence avant le geste)
@@ -1461,7 +1482,10 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
     cercle.addEventListener('click',function(){
       gesteActif=true;
       cercle.classList.add('joue');
-      assure(SRC['EMB:REINC']||'EMB:REINC');
+      var pp=assure(SRC['EMB:REINC']||'EMB:REINC');
+      /* démarrage IMMÉDIAT : on amorce la lecture au plein volume cible sans attendre le fondu */
+      pp.cible=VOL_PISTES['EMB:REINC']||VOL;
+      if(pp.audio){ pp.audio.volume=pp.cible; var pr=pp.audio.play(); if(pr&&pr.catch) pr.catch(function(){}); }
       montrerPochette(true);
       courante=-1; majAudio();           /* lance Reincarnation */
     });
@@ -1471,6 +1495,21 @@ body.seq-en-cours #son,body.seq-en-cours #credit-audio{opacity:0;pointer-events:
       },{threshold:0.35});
       io.observe(p16);
     }
+  })();
+  (function(){            // page 8 (1920) : bouton « Louis Armstrong » au centre → lance Jeepers Creepers
+    var p7=document.querySelector('[data-folio="7"]');
+    var btn=document.getElementById('armstrong-btn');
+    if(!p7||!btn) return;
+    btn.addEventListener('click',function(){
+      btn.classList.add('joue');
+      p7.setAttribute('data-son','EMB:JEEP');
+      p7.setAttribute('data-piste','Jeepers Creepers — Louis Armstrong');
+      var pp=assure(SRC['EMB:JEEP']||'EMB:JEEP');
+      muterAutres('EMB:JEEP');                 /* coupe East St. Louis Toodle-Oo */
+      pp.cible=VOL_PISTES['EMB:JEEP']||VOL;
+      if(pp.audio){ pp.audio.volume=pp.cible; var pr=pp.audio.play(); if(pr&&pr.catch) pr.catch(function(){}); }
+      courante=-1; majAudio();
+    });
   })();
   (function(){            // double page 13-14 : révélation du texte (Hart's Island) sur tout le diptyque — pas de son
     var dip=document.getElementById('dip-1314');
